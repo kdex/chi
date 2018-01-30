@@ -1,4 +1,4 @@
-import { Lexer, LazyToken as Token } from "chevrotain";
+import { Lexer } from "chevrotain";
 import { err } from "print-log";
 import {
 	Int8Type as i8,
@@ -9,159 +9,166 @@ import {
 	RecursiveType as infinity
 } from "./Types";
 const { SKIPPED, NA } = Lexer;
-export class MetaToken extends Token {
-	get meta() {
-		return {
-			name: this.image,
-			location: {
-				start: {
-					line: this.startLine,
-					column: this.startColumn
-				},
-				end: {
-					line: this.endLine,
-					column: this.endColumn
-				}
-			}
-		};
-	}
-}
-export class Identifier extends MetaToken {
+/* TODO: Implement LINE_BREAKS: https://sap.github.io/chevrotain/website/Building_Grammars/resolving_lexer_errors.html#LINE_BREAKS */
+export class Identifier {
 	static PATTERN = /[a-zA-Z]\w*/;
 }
-export class Colon extends MetaToken {
+export class Colon {
 	static PATTERN = /:/;
 }
-export class AdditiveOperator extends MetaToken {
+export class AdditiveOperator {
 	static PATTERN = NA;
 }
-export class MultiplicativeOperator extends MetaToken {
+export class MultiplicativeOperator {
 	static PATTERN = NA;
 }
-export class Comma extends MetaToken {
+export class Comma {
 	static PATTERN = /,/;
 }
-export class Plus extends AdditiveOperator {
+export class Plus {
 	static PATTERN = /\+/;
+	static CATEGORIES = AdditiveOperator;
 }
-export class Minus extends AdditiveOperator {
+export class Minus {
 	static PATTERN = /-|–|—/;
+	static CATEGORIES = AdditiveOperator;
 }
-export class Asterisk extends MultiplicativeOperator {
+export class Asterisk {
 	static PATTERN = /\*|·|×/;
+	static CATEGORIES = MultiplicativeOperator;
 }
-export class Slash extends MultiplicativeOperator {
+export class Slash {
 	static PATTERN = /\//;
+	static CATEGORIES = MultiplicativeOperator;
 }
-export class AndOperator extends MetaToken {
+export class AndOperator {
 	static PATTERN = /&&|∧/;
 }
-export class OrOperator extends MetaToken {
+export class OrOperator {
 	static PATTERN = /\|\||∨/;
 }
-export class NotOperator extends MetaToken {
+export class NotOperator {
 	static PATTERN = /¬|!/;
 }
-export class PowerLiteral extends MetaToken {
+export class PowerLiteral {
 	static PATTERN = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/;
 }
-export class LeftBrace extends MetaToken {
+export class LeftBrace {
 	static PATTERN = /{/;
 }
-export class RightBrace extends MetaToken {
+export class RightBrace {
 	static PATTERN = /}/;
 }
-export class LeftParenthesis extends MetaToken {
+export class LeftParenthesis {
 	static PATTERN = /\(/;
 }
-export class RightParenthesis extends MetaToken {
+export class RightParenthesis {
 	static PATTERN = /\)/;
 }
-export class LeftBracket extends MetaToken {
+export class LeftBracket {
 	static PATTERN = /\[/;
 }
-export class RightBracket extends MetaToken {
+export class RightBracket {
 	static PATTERN = /\]/;
 }
-export class Literal extends MetaToken {
+export class Literal {
 	static PATTERN = NA;
 }
-export class BooleanLiteral extends Literal {
+export class BooleanLiteral {
 	static PATTERN = NA;
+	static CATEGORIES = Literal;
 }
-export class TrueLiteral extends BooleanLiteral {
+export class TrueLiteral {
 	static PATTERN = /true/;
+	static CATEGORIES = BooleanLiteral;
 }
-export class FalseLiteral extends BooleanLiteral {
+export class FalseLiteral {
 	static PATTERN = /false/;
+	static CATEGORIES = BooleanLiteral;
 }
-export class NumberLiteral extends Literal {
+export class NumberLiteral {
 	static PATTERN = /\d+/;
+	static CATEGORIES = Literal;
 }
-export class StringLiteral extends Literal {
+export class StringLiteral {
 	static PATTERN = /(")(?:\\\1|.)*?\1/;
+	static CATEGORIES = Literal;
 }
-export class Semicolon extends MetaToken {
+export class Semicolon {
 	static PATTERN = /;/;
 }
-export class Equals extends MetaToken {
+export class Equals {
 	static PATTERN = /=/;
 }
-export class FatArrow extends MetaToken {
+export class FatArrow {
 	static PATTERN = /=>/;
 }
-export class Keyword extends MetaToken {
+export class Keyword {
 	static PATTERN = NA;
 	static LONGER_ALT = Identifier;
 }
-export class While extends Keyword {
+export class While {
 	static PATTERN = /while/;
+	static CATEGORIES = Keyword;
 }
-export class For extends Keyword {
+export class For {
 	static PATTERN = /for/;
+	static CATEGORIES = Keyword;
 }
-export class Do extends Keyword {
+export class Do {
 	static PATTERN = /do/;
+	static CATEGORIES = Keyword;
 }
-export class Let extends Keyword {
+export class Let {
 	static PATTERN = /let/;
+	static CATEGORIES = Keyword;
 }
-export class If extends Keyword {
+export class If {
 	static PATTERN = /if/;
+	static CATEGORIES = Keyword;
 }
-export class Else extends Keyword {
+export class Else {
 	static PATTERN = /else/;
+	static CATEGORIES = Keyword;
 }
-export class Type extends Keyword {
+export class Type {
 	static PATTERN = NA;
+	static CATEGORIES = Keyword;
 }
-export class TypeBool extends Type {
+export class TypeBool {
 	static PATTERN = /bool/;
 	static TYPE = bool;
+	static CATEGORIES = Type;
 }
-export class TypeInt8 extends Type {
+export class TypeInt8 {
 	static PATTERN = /i8/;
 	static TYPE = i8;
+	static CATEGORIES = Type;
 }
-export class TypeInt16 extends Type {
+export class TypeInt16 {
 	static PATTERN = /i16/;
 	static TYPE = i16;
+	static CATEGORIES = Type;
 }
-export class TypeInt32 extends Type {
+export class TypeInt32 {
 	static PATTERN = /i32/;
 	static TYPE = i32;
+	static CATEGORIES = Type;
 }
-export class TypeString extends Type {
+export class TypeString {
 	static PATTERN = /string/;
 	static TYPE = string;
+	static CATEGORIES = Type;
 }
-export class TypeRecursive extends Type {
+export class TypeRecursive {
 	static PATTERN = /infinity/;
 	static TYPE = infinity;
+	static CATEGORIES = Type;
 }
-export class Whitespace extends MetaToken {
+export class Whitespace {
 	static PATTERN = /\s+/;
 	static GROUP = SKIPPED;
+	static LINE_BREAKS = true;
 }
 export const allTokens = [
 	Whitespace,

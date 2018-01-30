@@ -176,7 +176,7 @@ export default class ChiParser extends Parser {
 					this.SUBRULE(this.type);
 				}
 			});
-			// identifier.typeHint = typeToken && typeToken.constructor.TYPE || null;
+			// identifier.typeHint = typeToken && typeToken.tokenType.TYPE || null;
 			this.CONSUME(Equals);
 			this.SUBRULE(this.expression);
 		});
@@ -255,8 +255,9 @@ export function transform(cst) {
 			const statements = statement.map(transform);
 			const [firstStatement] = statements;
 			const [lastStatement] = statements.slice(-1);
-			const start = firstStatement ? firstStatement.location.start : 0;
-			const end = lastStatement ? lastStatement.location.end : 0;
+			/* TODO */
+			const start = 0;
+			const end = 0;
 			const location = {
 				start,
 				end
@@ -278,10 +279,11 @@ export function transform(cst) {
 			const [hint] = type.map(transform);
 			const [id] = identifier.map(transform);
 			/* TODO: Move this to the static type checker */
-			id.typeHint = hint && hint.constructor.TYPE || null;
+			id.typeHint = hint && hint.tokenType.TYPE || null;
 			const [argument] = expression.map(transform);
-			const { start } = letToken.meta.location;
-			const { end } = argument.location;
+			const start = 0, end = 0;
+// 			const { start } = letToken.meta.location;
+// 			const { end } = argument.location;
 			const location = {
 				start,
 				end
@@ -289,12 +291,12 @@ export function transform(cst) {
 			return new LetStatement(location, id, argument);
 		}
 		case "expression": {
-			console.log(children);
 			const { LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
 			const [and, ...invocationArgs] = andExpression.map(transform);
-			const { start } = leftParen ? leftParen.meta.location : and.location;
+// 			const { start } = leftParen ? leftParen.meta.location : and.location;
 			const [lastArgument] = invocationArgs.slice(-1);
-			const { end } = rightParen ? rightParen.meta.location : lastArgument ? lastArgument.location : and.location;
+// 			const { end } = rightParen ? rightParen.meta.location : lastArgument ? lastArgument.location : and.location;
+			const start = 0, end = 0;
 			const location = {
 				start,
 				end
@@ -338,10 +340,10 @@ export function transform(cst) {
 					start,
 					end
 				};
-				if (operator instanceof Plus) {
+				if (operator.tokenType === Plus) {
 					return new Add(location, r1, r2);
 				}
-				else if (operator instanceof Minus) {
+				else if (operator.tokenType === Minus) {
 					return new Subtract(location, r1, r2);
 				}
 			});
@@ -357,10 +359,10 @@ export function transform(cst) {
 					start,
 					end
 				};
-				if (operator instanceof Asterisk) {
+				if (operator.tokenType === Asterisk) {
 					return new Multiply(location, r1, r2);
 				}
-				else if (operator instanceof Slash) {
+				else if (operator.tokenType === Slash) {
 					return new Divide(location, r1, r2);
 				}
 			});
@@ -368,8 +370,9 @@ export function transform(cst) {
 		case "notExpression": {
 			const { powerExpression, NotOperator: [operator] } = children;
 			const [operand] = powerExpression.map(transform);
-			const start = !operator ? operand.location.start : operator.meta.location.start;
-			const end = operand.location.end;
+// 			const start = !operator ? operand.location.start : operator.meta.location.start;
+// 			const end = operand.location.end;
+			const start = 0, end = 0;
 			const location = {
 				start,
 				end
@@ -380,8 +383,9 @@ export function transform(cst) {
 			const { castExpression, powerLiteral } = children;
 			const [base] = castExpression.map(transform);
 			const [exponent] = powerLiteral.map(transform);
-			const { start } = base.location;
-			const end = !exponent ? base.location.end : exponent.location.end;
+// 			const { start } = base.location;
+// 			const end = !exponent ? base.location.end : exponent.location.end;
+			const start = 0, end = 0;
 			const location = {
 				start,
 				end
@@ -392,10 +396,11 @@ export function transform(cst) {
 			const { termExpression, identifier, type } = children;
 			const [value] = termExpression.map(transform);
 			const typeTransforms = type.map(transform);
-			const runtimeTypes = typeTransforms.map(t => t.constructor.TYPE);
-			const { start } = value.location;
+			const runtimeTypes = typeTransforms.map(t => t.tokenType.TYPE);
+// 			const { start } = value.location;
 			const [lastType] = typeTransforms.slice(-1);
-			const end = !type.length ? value.location.end : lastType.meta.location.end;
+// 			const end = !type.length ? value.location.end : lastType.meta.location.end;
+			const start = 0, end = 0;
 			const location = {
 				start,
 				end
@@ -426,7 +431,8 @@ export function transform(cst) {
 		case "numberLiteral": {
 			const { NumberLiteral: [number] } = children;
 			const conversion = Number(number.image);
-			return new Int32Value(number.meta.location, new Int32Array([conversion]));
+			const location = {};
+			return new Int32Value(location, new Int32Array([conversion]));
 		}
 		case "stringLiteral": {
 			const { StringLiteral: [string] } = children;
@@ -436,11 +442,13 @@ export function transform(cst) {
 				.replace(/^"|"$/g, "")
 				.replace(/\\"/g, `"`)
 			);
-			return new StringValue(string.meta.location, conversion);
+			const location = {}
+			return new StringValue(location, conversion);
 		}
 		case "booleanLiteral": {
 			const { BooleanLiteral: [bool] } = children;
-			return new BoolValue(bool.meta.location, bool.image === "true");
+			const location = {};
+			return new BoolValue(location, bool.image === "true");
 		}
 		case "functionLiteral": {
 			let body;
@@ -451,8 +459,9 @@ export function transform(cst) {
 					[body] = bodyType.map(transform);
 				}
 			}
-			const { start } = parenLeft && parenLeft.meta.location || parameters[0].location;
-			const { end } = parenRight && parenRight.meta.location || parameters[0].location;
+// 			const { start } = parenLeft && parenLeft.meta.location || parameters[0].location;
+// 			const { end } = parenRight && parenRight.meta.location || parameters[0].location;
+			const start = 0, end = 0;
 			const location = {
 				start,
 				end
@@ -461,7 +470,8 @@ export function transform(cst) {
 		}
 		case "identifier": {
 			const { Identifier: [identifier] } = children;
-			return new Id(identifier.meta.location, identifier.image);
+			const location = {};
+			return new Id(location, identifier.image);
 		}
 		case "parenthesisExpression": {
 			const { expression } = children;
@@ -473,7 +483,8 @@ export function transform(cst) {
 		}
 		case "powerLiteral": {
 			const { PowerLiteral: [power] } = children;
-			return new Int32Value(power.meta.location, new Int32Array([parseSuperScript(power.image)]));
+			const location = {};
+			return new Int32Value(location, new Int32Array([parseSuperScript(power.image)]));
 		}
 		default: {
 			throw new Error(`CST transformation not implemented for CST node "${cst.name}"`);
