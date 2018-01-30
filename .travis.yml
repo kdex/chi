@@ -4,9 +4,6 @@ node_js:
 - "9"
 - "8"
 - "7"
-- "6"
-- "5"
-- "4"
 before_install:
 - "[[ $(node -v) =~ ^v9.*$ ]] || npm i -g npm@latest"
 - npm i -g greenkeeper-lockfile@1
