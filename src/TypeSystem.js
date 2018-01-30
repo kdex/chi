@@ -50,18 +50,6 @@ const infer = (expression, type) => {
 	}
 	expression.typeHint = type;
 };
-function toKeyword(type) {
-	if (type === AnyType) {
-		return type.toString();
-	}
-	else {
-		return types
-			.find(x => x.TYPE === type)
-			.PATTERN
-			.toString()
-			.replace(/^\/|\/$/g, "");
-	}
-}
 export function getGreaterDomain(left, right) {
 	const leftInt8 = left === Int8Type;
 	const rightInt8 = right === Int8Type;
@@ -145,12 +133,12 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 	}
 	else if (expression instanceof Let) {
 		const { identifier, expression: boundExpression } = expression;
-		const { name } = identifier;
+		const { image: name } = identifier;
 		const { typeHint } = identifier;
 		try {
 			const [type, s1] = typeOf(boundExpression);
 			if (typeHint && type !== typeHint) {
-				throw new TypeError(`Tried to declare "${identifier.name}" with type "${toKeyword(typeHint)}", but bound to a value of type "${toKeyword(type)}"`);
+				throw new TypeError(`Tried to declare "${identifier.image}" with type "${typeHint}", but bound to a value of type "${type}"`);
 			}
 			else {
 				if (!identifier.typeHint) {
@@ -187,11 +175,9 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			const [left, s1] = typeOf(expression.left);
 			const [right, s2] = typeOf(expression.right, environment, s1);
 			const greaterDomain = getGreaterDomain(left, right);
-			const leftKeyword = toKeyword(left);
-			const rightKeyword = toKeyword(right);
 			if (expression instanceof And) {
 				if (left !== BoolType || right !== BoolType) {
-					throw new TypeError(`The operator "∧" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "∧" is not defined for operands of type "${left}" and "${right}".`);
 				}
 				else {
 					return [BoolType, s2];
@@ -199,7 +185,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			}
 			if (expression instanceof Or) {
 				if (left !== BoolType || right !== BoolType) {
-					throw new TypeError(`The operator "∨" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "∨" is not defined for operands of type "${left}" and "${right}".`);
 				}
 				else {
 					return [BoolType, s2];
@@ -215,7 +201,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Subtract) {
@@ -224,7 +210,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Multiply) {
@@ -233,7 +219,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Divide) {
@@ -242,7 +228,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Power) {
@@ -251,7 +237,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [left, s2];
 				}
 				else {
-					throw new TypeError(`The operator "**" is not defined for operands of type "${leftKeyword}" and "${rightKeyword}".`);
+					throw new TypeError(`The operator "**" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 		}
@@ -259,7 +245,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			if (expression instanceof Not) {
 				const [operandType, s1] = typeOf(expression.operand);
 				if (operandType !== BoolType) {
-					throw new TypeError(`The operator "¬" is not defined for operands of type "${toKeyword(operandType)}".`);
+					throw new TypeError(`The operator "¬" is not defined for operands of type "${operandType}".`);
 				}
 				else {
 					return [BoolType, s1];
@@ -317,7 +303,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				/* No arguments were specified. Is this legal? */
 				if (!isVoidFunction) {
 					/* Nope, it's not. */
-					throw new TypeError(`Tried to invoke ${target.name ? `"${target.name}"` : "closure"} without any arguments, although at least one formal parameter is expected.`);
+					throw new TypeError(`Tried to invoke ${target.image ? `"${target.image}"` : "closure"} without any arguments, although at least one formal parameter is expected.`);
 				}
 			}
 			args.forEach((arg, i) => {
@@ -343,7 +329,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 							}
 						}
 						else {
-							throw new Error(`More arguments specified than formal parameters available in invocation of ${target.name ? `"${target.name}"` : "closure"}`);
+							throw new Error(`More arguments specified than formal parameters available in invocation of ${target.image ? `"${target.image}"` : "closure"}`);
 						}
 					}
 				}
@@ -352,7 +338,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					infer(arg, argumentType);
 				}
 				else {
-					throw new TypeError(`Argument "${arg}" of type "${toKeyword(argumentType)}" doesn't match expected type "${toKeyword(expectedType)}"`);
+					throw new TypeError(`Argument "${arg}" of type "${argumentType}" doesn't match expected type "${expectedType}"`);
 				}
 			});
 			if (args.length < domain.length) {
@@ -375,13 +361,13 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [image, s1];
 				}
 				else {
-					throw new TypeError(`Tried to invoke ${target.name ? `"${target.name}"` : "closure"} without any arguments`);
+					throw new TypeError(`Tried to invoke ${target.image ? `"${target.image}"` : "closure"} without any arguments`);
 				}
 			}
 			else {
 				if (isVoidFunction) {
 					const [actualType] = typeOf(target);
-					throw new TypeError(`Tried to pass ${args.length} more argument${args.length === 1 ? "" : "s"} to ${target.name ? `"${target.name}"` : "closure"} of type "${actualType}" although none were expected`);
+					throw new TypeError(`Tried to pass ${args.length} more argument${args.length === 1 ? "" : "s"} to ${target.image ? `"${target.image}"` : "closure"} of type "${actualType}" although none were expected`);
 				}
 				else {
 					return checkArguments(domain, image);
@@ -400,11 +386,11 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			return [newType, newStore];
 		}
 		else {
-			throw new TypeError(`Unable to invoke ${target.name ? `"${target.name}"` : "intermediate value"}, as it is of type "${toKeyword(type)}".`);
+			throw new TypeError(`Unable to invoke ${target.image ? `"${target.image}"` : "intermediate value"}, as it is of type "${type}".`);
 		}
 	}
 	else if (expression instanceof Id) {
-		const { name } = expression;
+		const { image: name } = expression;
 		if (!environment.has(name)) {
 			throw new ReferenceError(name);
 		}
@@ -425,7 +411,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				return [type, s1];
 			}
 			else {
-				throw new TypeError(`Can not cast "${toKeyword(targetType)}" to "${toKeyword(type)}"`);
+				throw new TypeError(`Can not cast "${targetType}" to "${type}"`);
 			}
 		}
 	}
