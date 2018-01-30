@@ -17,18 +17,18 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "babel-eslint": "^7.1.1",
-    "babel-loader": "^6.4.1",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.2.2",
     "babel-preset-stage-0": "^6.22.0",
-    "babili-webpack-plugin": "0.0.11",
-    "chevrotain": "^0.24.0",
+    "babili-webpack-plugin": "0.1.2",
+    "chevrotain": "^1.0.1",
     "es6-error": "^4.0.2",
-    "eslint": "^3.18.0",
+    "eslint": "^4.16.0",
     "eslint-plugin-filenames": "^1.1.0",
     "print-log": "^1.0.3",
     "raw-loader": "^0.5.1",
-    "webpack": "^2.2.1"
+    "webpack": "^3.10.0"
   },
   "dependencies": {}
 }
