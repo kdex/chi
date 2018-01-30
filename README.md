@@ -1,6 +1,5 @@
 # chi
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/kdex/chi.svg)](https://greenkeeper.io/)
 [![Travis](https://img.shields.io/travis/kdex/chi.svg?branch=master)](https://travis-ci.org/kdex/chi)
 [![dependencies Status](https://img.shields.io/david/kdex/chi.svg)](https://david-dm.org/kdex/chi)
 
