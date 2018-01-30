@@ -5,15 +5,9 @@ node_js:
 - "8"
 - "7"
 before_install:
-- "[[ $(node -v) =~ ^v9.*$ ]] || npm i -g npm@latest"
-- npm i -g greenkeeper-lockfile@1
-before_script:
-- greenkeeper-lockfile-update
+- npm i -g npm@latest
 install:
 - npm i
 script:
 - npm run lint || true
 - node dist/cli chi/*
-after_script:
-# Keep lock file up-to-date
-- greenkeeper-lockfile-upload

@@ -26,6 +26,7 @@
     "es6-error": "^4.0.2",
     "eslint": "^4.16.0",
     "eslint-plugin-filenames": "^1.1.0",
+    "greenkeeper-lockfile": "^1.13.2",
     "print-log": "^1.0.3",
     "raw-loader": "^0.5.1",
     "webpack": "^3.10.0"
