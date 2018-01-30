@@ -1,4 +1,7 @@
 # chi
+[![Travis](https://img.shields.io/travis/kdex/chi.svg?branch=master)](https://travis-ci.org/kdex/chi)
+[![dependencies Status](https://img.shields.io/david/kdex/chi.svg)](https://david-dm.org/kdex/chi)
+
 <p align="center">
   <img alt="logo" src="https://cloud.githubusercontent.com/assets/4442505/23861535/a7285cf6-080a-11e7-885d-f51787e4c6bb.png">
 </p>
