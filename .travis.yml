@@ -16,6 +16,7 @@ install:
 - npm i
 script:
 - npm run lint || true
+- node dist/cli chi/*
 after_script:
 # Keep lock file up-to-date
 - greenkeeper-lockfile-upload
