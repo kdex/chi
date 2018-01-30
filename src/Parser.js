@@ -1,5 +1,4 @@
 import { Parser } from "chevrotain";
-import { debug } from "print-log";
 import {
 	allTokens,
 	Let,
@@ -29,7 +28,7 @@ import {
 	Type
 } from "./Lexer";
 import {
-	NumberValue,
+// 	NumberValue,
 	StringValue,
 	Int32Value,
 	BoolValue,
@@ -54,7 +53,9 @@ function parseSuperScript(value) {
 }
 export default class ChiParser extends Parser {
 	constructor(input) {
-		allTokens.forEach(x => x.tokenName = x.name);
+		allTokens.forEach(x => {
+			x.tokenName = x.name;
+		});
 		super(input, allTokens, {
 			outputCst: true
 		});
@@ -269,6 +270,8 @@ export function transform(cst) {
 					return statement.map(transform)[0];
 				}
 			}
+			/* TODO: untested */
+			break;
 		}
 		case "letStatement": {
 			const { Let: [letToken], identifier, expression, type } = children;

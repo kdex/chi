@@ -99,7 +99,7 @@ export class NumberLiteral extends Literal {
 	static PATTERN = /\d+/;
 }
 export class StringLiteral extends Literal {
-	static PATTERN = /([\"])(?:\\\1|.)*?\1/;
+	static PATTERN = /(")(?:\\\1|.)*?\1/;
 }
 export class Semicolon extends MetaToken {
 	static PATTERN = /;/;
