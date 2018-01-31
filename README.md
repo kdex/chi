@@ -16,7 +16,7 @@ This will tokenize the file `<chi-file>` and then parse, type-check and interpre
 
 **Please do not use chi in production yet. It's still highly experimental and will likely change a lot.**
 ## About chi
-Chi, in its current form, is a meant to be a statically-typed, imperative programming language featuring ideas from the functional programming paradigm. As such, it considers functions to be first-class and performs automatic currying. It uses static scope and supports Unicode tokens. A (potentially incomplete) showcase of features is listed in the next section.
+Chi, in its current form, is a meant to be a statically-typed, imperative programming language featuring ideas from the functional programming paradigm. As such, it considers functions to be first-class and performs automatic currying. It uses static scope and supports Unicode tokens. A (potentially incomplete) showcase of features is listed in the next section. Again, note that some features may break or change as chi isn't stable yet.
 ## Demo
 There is a very simple demo [here](https://github.kdex.de/chi/) where you can play around with chi.
 ## Getting started
@@ -31,11 +31,14 @@ Chi supports static typing. If no type is specified, a type will be inferred. Ma
 - `i8`
 - `i16`
 - `i32`
+- `u8`
+- `u16`
+- `u32`
 - `string`
 - `bool`
 
 ### Numbers, type casting
-There are currently the integer types `i8`, `i16` and `i32` for numerical values. If you don't specify the type of an integer literal, it will be assumed to be of type `i32`. In the example below, the first line will be `255:i8 + 2:i16`, which is equivalent to `-1:i8 + 2:i16`, which is equivalent to `-1:i16 + 2:i16`, which will be evaluated to `1:i16`.
+There are currently the signed integer types `i8`, `i16`, and `i32` and their unsigned equivalents `u8`, `u16`, and `u32` for numerical values. If you don't specify the type of an integer literal, it will be assumed to be of type `i32`. In the example below, the first line will be `255:i8 + 2:i16`, which is equivalent to `-1:i8 + 2:i16`, which is equivalent to `-1:i16 + 2:i16`, which will be evaluated to `1:i16`.
 
 The second line demonstrates that `1 + 128:i8` is equivalent to `1:i32 + 128:i8`, and will by the same rules be evaluated to `-127:i32`.
 ```js
@@ -82,7 +85,7 @@ curry2(5)(8)
 ### Arity checking
 If you try to invoke a function with more arguments than it can receive, this can be detected due to static type checking and throw a `TypeError`.
 ```js
-let f = (x, y) = x * y - 3
+let f = (x, y) => x * y - 3
 f(1, 2, 3)
 ```
 ### Unicode tokens
