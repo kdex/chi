@@ -94,7 +94,7 @@ export default function interpret(expression, environment = new Environment(), s
 				if (value) {
 					return [value.add(left, right), s2];
 				}
-				else if (typeHint === StringType) {
+				else {
 					return [left.concatenate(right), s2];
 				}
 			}

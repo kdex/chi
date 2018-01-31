@@ -97,7 +97,7 @@ export function getGreaterDomain(left, right) {
 		return right;
 	}
 	else {
-		throw new Error("Domain: Not implemented yet");
+		throw new Error(`Domain: Not implemented yet ("${left}", "${right}")`);
 	}
 }
 const getTypeOf = (expression, environment = new Environment(), store = new Store()) => {
@@ -185,6 +185,12 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		if (expression instanceof BinaryOperator) {
 			const [left, s1] = typeOf(expression.left);
 			const [right, s2] = typeOf(expression.right, environment, s1);
+			if (left === AnyType && right === AnyType) {
+				return [AnyType, s2];
+			}
+			if (left === StringType && right === StringType) {
+				return [StringType, s2];
+			}
 			const greaterDomain = getGreaterDomain(left, right);
 			if (expression instanceof And) {
 				if (left !== BoolType || right !== BoolType) {
