@@ -33,7 +33,8 @@ export class FunctionType extends AnyType {
 		return this.inspect();
 	}
 }
-export class IntType extends AnyType {}
+export class FixedIntegerType extends AnyType {}
+export class IntType extends FixedIntegerType {}
 export class Int8Type extends IntType {
 	static inspect() {
 		return "i8";
@@ -53,6 +54,31 @@ export class Int16Type extends IntType {
 export class Int32Type extends IntType {
 	static inspect() {
 		return "i32";
+	}
+	static toString() {
+		return this.inspect();
+	}
+}
+export class UintType extends FixedIntegerType {}
+export class Uint8Type extends UintType {
+	static inspect() {
+		return "u8";
+	}
+	static toString() {
+		return this.inspect();
+	}
+}
+export class Uint16Type extends UintType {
+	static inspect() {
+		return "u16";
+	}
+	static toString() {
+		return this.inspect();
+	}
+}
+export class Uint32Type extends UintType {
+	static inspect() {
+		return "u32";
 	}
 	static toString() {
 		return this.inspect();

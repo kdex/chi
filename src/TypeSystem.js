@@ -23,6 +23,10 @@ import {
 	Int8Value,
 	Int16Value,
 	Int32Value,
+	UintValue,
+	Uint8Value,
+	Uint16Value,
+	Uint32Value,
 	StringValue,
 	BoolValue,
 	FunctionExpression,
@@ -34,6 +38,11 @@ import {
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	UintType,
+	Uint8Type,
+	Uint16Type,
+	Uint32Type,
+	FixedIntegerType,
 	StringType,
 	BoolType,
 	FunctionType,
@@ -96,13 +105,15 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 	/* TODO: RecursiveType check necessary */
 	function valueMatchesType(value, type, env = environment) {
 		const trivialChecks = (
-			type === AnyType
-			|| (
-				value instanceof Int8Value && type === Int8Type
-				|| value instanceof Int16Value && type === Int16Type
-				|| value instanceof Int32Value && type === Int32Type
-				|| value instanceof StringValue && type === StringType
-				|| value instanceof BoolValue && type === BoolType
+			type === AnyType || (
+				value instanceof Int8Value && type === Int8Type ||
+				value instanceof Int16Value && type === Int16Type ||
+				value instanceof Int32Value && type === Int32Type ||
+				value instanceof Uint8Value && type === Uint8Type ||
+				value instanceof Uint16Value && type === Uint16Type ||
+				value instanceof Uint32Value && type === Uint32Type ||
+				value instanceof StringValue && type === StringType ||
+				value instanceof BoolValue && type === BoolType
 			)
 		);
 		if (trivialChecks) {
@@ -133,12 +144,12 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 	}
 	else if (expression instanceof Let) {
 		const { identifier, expression: boundExpression } = expression;
-		const { image: name } = identifier;
+		const { name } = identifier;
 		const { typeHint } = identifier;
 		try {
 			const [type, s1] = typeOf(boundExpression);
 			if (typeHint && type !== typeHint) {
-				throw new TypeError(`Tried to declare "${identifier.image}" with type "${typeHint}", but bound to a value of type "${type}"`);
+				throw new TypeError(`Tried to declare "${name}" with type "${typeHint}", but bound to a value of type "${type}"`);
 			}
 			else {
 				if (!identifier.typeHint) {
@@ -183,13 +194,17 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [BoolType, s2];
 				}
 			}
-			if (expression instanceof Or) {
+			else if (expression instanceof Or) {
 				if (left !== BoolType || right !== BoolType) {
 					throw new TypeError(`The operator "∨" is not defined for operands of type "${left}" and "${right}".`);
 				}
 				else {
 					return [BoolType, s2];
 				}
+			}
+			/* Arithmetic operators may have a cast hint, which allows us to skip inference */
+			if (expression.typeHint) {
+				return [expression.typeHint, s2];
 			}
 			else if (expression instanceof Add) {
 				if (left === StringType && right === StringType) {
@@ -210,7 +225,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
+					throw new TypeError(`The operator "-" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Multiply) {
@@ -219,7 +234,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
+					throw new TypeError(`The operator "·" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Divide) {
@@ -228,7 +243,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [greaterDomain, s2];
 				}
 				else {
-					throw new TypeError(`The operator "+" is not defined for operands of type "${left}" and "${right}".`);
+					throw new TypeError(`The operator "/" is not defined for operands of type "${left}" and "${right}".`);
 				}
 			}
 			else if (expression instanceof Power) {
@@ -264,6 +279,17 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 				if (expression instanceof Int32Value) {
 					return [Int32Type, store];
+				}
+			}
+			if (expression instanceof UintValue) {
+				if (expression instanceof Uint8Value) {
+					return [Uint8Type, store];
+				}
+				if (expression instanceof Int16Value) {
+					return [Uint16Type, store];
+				}
+				if (expression instanceof Int32Value) {
+					return [Uint32Type, store];
 				}
 			}
 		}
@@ -390,7 +416,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		}
 	}
 	else if (expression instanceof Id) {
-		const { image: name } = expression;
+		const { name } = expression;
 		if (!environment.has(name)) {
 			throw new ReferenceError(name);
 		}
@@ -400,18 +426,19 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		}
 	}
 	else if (expression instanceof Cast) {
-		const { target, to: type } = expression;
-		const [targetType, s1] = typeOf(target);
-		if (type === targetType) {
-			return [type, s1];
+		const { target, to: targetType } = expression;
+		target.typeHint = targetType;
+		const [sourceType, s1] = typeOf(target);
+		if (targetType === sourceType) {
+			return [targetType, s1];
 		}
 		else {
-			if (IntType.isPrototypeOf(type) && IntType.isPrototypeOf(targetType)) {
+			if (FixedIntegerType.isPrototypeOf(targetType) && FixedIntegerType.isPrototypeOf(sourceType)) {
 				/* Allow dynamic casting for integers */
-				return [type, s1];
+				return [targetType, s1];
 			}
 			else {
-				throw new TypeError(`Can not cast "${targetType}" to "${type}"`);
+				throw new TypeError(`Can not cast "${sourceType}" to "${targetType}"`);
 			}
 		}
 	}

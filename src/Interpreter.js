@@ -15,6 +15,9 @@ import {
 	Int8Value,
 	Int16Value,
 	Int32Value,
+	Uint8Value,
+	Uint16Value,
+	Uint32Value,
 	ClosureValue,
 	BoolValue,
 	Block,
@@ -31,6 +34,11 @@ import {
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	UintType,
+	Uint8Type,
+	Uint16Type,
+	Uint32Type,
+	FixedIntegerType,
 	StringType
 } from "./Types";
 export default function interpret(expression, environment = new Environment(), store = new Store()) {
@@ -53,6 +61,29 @@ export default function interpret(expression, environment = new Environment(), s
 			const [left, s1] = π(expression.left);
 			const [right, s2] = π(expression.right, environment, s1);
 			const { typeHint } = expression;
+			let value;
+			if (FixedIntegerType.isPrototypeOf(typeHint)) {
+				switch (typeHint) {
+					case Int8Type:
+						value = Int8Value;
+						break;
+					case Int16Type:
+						value = Int16Value;
+						break;
+					case Int32Type:
+						value = Int32Value;
+						break;
+					case Uint8Type:
+						value = Uint8Value;
+						break;
+					case Uint16Type:
+						value = Uint16Value;
+						break;
+					case Uint32Type:
+						value = Uint32Value;
+						break;
+				}
+			}
 			if (expression instanceof And) {
 				return [new BoolValue(null, left.value && right.value), s2];
 			}
@@ -60,63 +91,31 @@ export default function interpret(expression, environment = new Environment(), s
 				return [new BoolValue(null, left.value || right.value), s2];
 			}
 			else if (expression instanceof Add) {
-				if (IntType.isPrototypeOf(typeHint)) {
-					if (typeHint === Int8Type) {
-						return [Int8Value.add(left, right), s2];
-					}
-					else if (typeHint === Int16Type) {
-						return [Int16Value.add(left, right), s2];
-					}
-					else if (typeHint === Int32Type) {
-						return [Int32Value.add(left, right), s2];
-					}
+				if (value) {
+					return [value.add(left, right), s2];
 				}
 				else if (typeHint === StringType) {
 					return [left.concatenate(right), s2];
 				}
 			}
 			else if (expression instanceof Subtract) {
-				if (typeHint === Int8Type) {
-					return [Int8Value.subtract(left, right), s2];
-				}
-				else if (typeHint === Int16Type) {
-					return [Int16Value.subtract(left, right), s2];
-				}
-				else if (typeHint === Int32Type) {
-					return [Int32Value.subtract(left, right), s2];
+				if (value) {
+					return [value.subtract(left, right), s2];
 				}
 			}
 			else if (expression instanceof Multiply) {
-				if (typeHint === Int8Type) {
-					return [Int8Value.multiply(left, right), s2];
-				}
-				else if (typeHint === Int16Type) {
-					return [Int16Value.multiply(left, right), s2];
-				}
-				else if (typeHint === Int32Type) {
-					return [Int32Value.multiply(left, right), s2];
+				if (value) {
+					return [value.multiply(left, right), s2];
 				}
 			}
 			else if (expression instanceof Divide) {
-				if (typeHint === Int8Type) {
-					return [Int8Value.divide(left, right), s2];
-				}
-				else if (typeHint === Int16Type) {
-					return [Int16Value.divide(left, right), s2];
-				}
-				else if (typeHint === Int32Type) {
-					return [Int32Value.divide(left, right), s2];
+				if (value) {
+					return [value.divide(left, right), s2];
 				}
 			}
 			else if (expression instanceof Power) {
-				if (typeHint === Int8Type) {
-					return [Int8Value.power(left, right), s2];
-				}
-				else if (typeHint === Int16Type) {
-					return [Int16Value.power(left, right), s2];
-				}
-				else if (typeHint === Int32Type) {
-					return [Int32Value.power(left, right), s2];
+				if (value) {
+					return [value.power(left, right), s2];
 				}
 			}
 		}

@@ -4,6 +4,9 @@ import {
 	Int8Type as i8,
 	Int16Type as i16,
 	Int32Type as i32,
+	Uint8Type as u8,
+	Uint16Type as u16,
+	Uint32Type as u32,
 	StringType as string,
 	BoolType as bool,
 	RecursiveType as infinity
@@ -155,6 +158,21 @@ export class TypeInt32 {
 	static TYPE = i32;
 	static CATEGORIES = Type;
 }
+export class TypeUint8 {
+	static PATTERN = /u8/;
+	static TYPE = u8;
+	static CATEGORIES = Type;
+}
+export class TypeUint16 {
+	static PATTERN = /u16/;
+	static TYPE = u16;
+	static CATEGORIES = Type;
+}
+export class TypeUint32 {
+	static PATTERN = /u32/;
+	static TYPE = u32;
+	static CATEGORIES = Type;
+}
 export class TypeString {
 	static PATTERN = /string/;
 	static TYPE = string;
@@ -210,6 +228,9 @@ export const allTokens = [
 	TypeInt8,
 	TypeInt16,
 	TypeInt32,
+	TypeUint8,
+	TypeUint16,
+	TypeUint32,
 	TypeString,
 	TypeBool,
 	TypeRecursive,

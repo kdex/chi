@@ -2,6 +2,9 @@ import {
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	Uint8Type,
+	Uint16Type,
+	Uint32Type,
 	StringType,
 	BoolType
 } from "./Types";
@@ -107,24 +110,9 @@ export class Cast extends Locatable {
 		this.to = to;
 	}
 }
-export class NumberValue extends Value {}
-export class IntValue extends NumberValue {
+export class NumberValue extends Value {
 	get number() {
 		return this.value[0];
-	}
-	to(type) {
-		if (type === Int8Type) {
-			return new Int8Value(null, Int8Array.from(this.value));
-		}
-		else if (type === Int16Type) {
-			return new Int16Value(null, Int16Array.from(this.value));
-		}
-		else if (type === Int32Type) {
-			return new Int32Value(null, Int32Array.from(this.value));
-		}
-		else {
-			throw new Error(`Cast not impemented: ${type}`);
-		}
 	}
 	static add(left, right) {
 		return this.compute(left, right, (x, y) => x.number + y.number);
@@ -141,6 +129,31 @@ export class IntValue extends NumberValue {
 	static power(left, right) {
 		return this.compute(left, right, (x, y) => x.number ** y.number);
 	}
+	to(type) {
+		if (type === Int8Type) {
+			return new Int8Value(null, Int8Array.from(this.value));
+		}
+		else if (type === Int16Type) {
+			return new Int16Value(null, Int16Array.from(this.value));
+		}
+		else if (type === Int32Type) {
+			return new Int32Value(null, Int32Array.from(this.value));
+		}
+		if (type === Uint8Type) {
+			return new Uint8Value(null, Uint8Array.from(this.value));
+		}
+		else if (type === Uint16Type) {
+			return new Uint16Value(null, Uint16Array.from(this.value));
+		}
+		else if (type === Uint32Type) {
+			return new Uint32Value(null, Uint32Array.from(this.value));
+		}
+		else {
+			throw new Error(`Cast not impemented: ${type}`);
+		}
+	}
+}
+export class IntValue extends NumberValue {
 	inspect() {
 		let hint;
 		if (this instanceof Int8Value) {
@@ -177,6 +190,45 @@ export class Int32Value extends IntValue {
 		left.to(Int32Type);
 		right.to(Int32Type);
 		return new Int32Value(null, Int32Array.from([f(left, right)]));
+	}
+}
+export class UintValue extends NumberValue {
+	inspect() {
+		let hint;
+		if (this instanceof Uint8Value) {
+			hint = "8";
+		}
+		else if (this instanceof Uint16Value) {
+			hint = "16";
+		}
+		else if (this instanceof Uint32Value) {
+			hint = "32";
+		}
+		return `${this.value[0]}:u${hint}`;
+	}
+	toString() {
+		return this.inspect();
+	}
+}
+export class Uint8Value extends UintValue {
+	static compute(left, right, f) {
+		left.to(Uint8Type);
+		right.to(Uint8Type);
+		return new Uint8Value(null, Uint8Array.from([f(left, right)]));
+	}
+}
+export class Uint16Value extends UintValue {
+	static compute(left, right, f) {
+		left.to(Uint16Type);
+		right.to(Uint16Type);
+		return new Uint16Value(null, Uint16Array.from([f(left, right)]));
+	}
+}
+export class Uint32Value extends UintValue {
+	static compute(left, right, f) {
+		left.to(Uint32Type);
+		right.to(Uint32Type);
+		return new Uint32Value(null, Uint32Array.from([f(left, right)]));
 	}
 }
 export class StringValue extends Value {
