@@ -240,6 +240,16 @@ export default class ChiParser extends Parser {
 		Parser.performSelfAnalysis(this);
 	}
 }
+const locate = (start, end = start) => ({
+	start: {
+		line: start.startLine || start.location.start.line,
+		column: start.startColumn || start.location.start.column
+	},
+	end: {
+		line: end.endLine || end.location.end.line,
+		column: end.endColumn || end.location.end.column
+	}
+});
 /**
 * Recursively transforms a CST to an AST
 * @param {object} cst
@@ -255,13 +265,7 @@ export function transform(cst) {
 			const statements = statement.map(transform);
 			const [firstStatement] = statements;
 			const [lastStatement] = statements.slice(-1);
-			/* TODO */
-			const start = 0;
-			const end = 0;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(firstStatement, lastStatement || firstStatement);
 			return new Block(location, ...statements);
 		}
 		case "statement": {
@@ -281,38 +285,21 @@ export function transform(cst) {
 			/* TODO: Move this to the static type checker */
 			id.typeHint = hint && hint.tokenType.TYPE || null;
 			const [argument] = expression.map(transform);
-			const start = 0, end = 0;
-// 			const { start } = letToken.meta.location;
-// 			const { end } = argument.location;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(letToken, argument);
 			return new LetStatement(location, id, argument);
 		}
 		case "expression": {
 			const { LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
 			const [and, ...invocationArgs] = andExpression.map(transform);
-// 			const { start } = leftParen ? leftParen.meta.location : and.location;
 			const [lastArgument] = invocationArgs.slice(-1);
-// 			const { end } = rightParen ? rightParen.meta.location : lastArgument ? lastArgument.location : and.location;
-			const start = 0, end = 0;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(leftParen ? leftParen : and, rightParen ? rightParen : lastArgument);
 			return !invocationArgs.length ? and : new Apply(location, and, ...invocationArgs);
 		}
 		case "andExpression": {
 			const { orExpression } = children;
 			const [lhs, ...rhs] = orExpression.map(transform);
 			return !rhs.length ? lhs : [lhs, ...rhs].reduce((r1, r2) => {
-				const { start } = r1.location;
-				const { end } = r2.location;
-				const location = {
-					start,
-					end
-				};
+				const location = locate(r1, r2);
 				return new And(location, r1, r2);
 			});
 		}
@@ -320,12 +307,7 @@ export function transform(cst) {
 			const { additiveExpression } = children;
 			const [lhs, ...rhs] = additiveExpression.map(transform);
 			return !rhs.length ? lhs : [lhs, ...rhs].reduce((r1, r2) => {
-				const { start } = r1.location;
-				const { end } = r2.location;
-				const location = {
-					start,
-					end
-				};
+				const location = locate(r1, r2);
 				return new Or(location, r1, r2);
 			});
 		}
@@ -334,12 +316,7 @@ export function transform(cst) {
 			const [lhs, ...rhs] = multiplicativeExpression.map(transform);
 			return [lhs, ...rhs].reduce((r1, r2, i) => {
 				const operator = operators[i - 1];
-				const { start } = r1.location;
-				const { end } = r2.location;
-				const location = {
-					start,
-					end
-				};
+				const location = locate(r1, r2);
 				if (operator.tokenType === Plus) {
 					return new Add(location, r1, r2);
 				}
@@ -353,12 +330,7 @@ export function transform(cst) {
 			const [lhs, ...rhs] = notExpression.map(transform);
 			return [lhs, ...rhs].reduce((r1, r2, i) => {
 				const operator = operators[i - 1];
-				const { start } = r1.location;
-				const { end } = r2.location;
-				const location = {
-					start,
-					end
-				};
+				const location = locate(r1, r2);
 				if (operator.tokenType === Asterisk) {
 					return new Multiply(location, r1, r2);
 				}
@@ -370,26 +342,14 @@ export function transform(cst) {
 		case "notExpression": {
 			const { powerExpression, NotOperator: [operator] } = children;
 			const [operand] = powerExpression.map(transform);
-// 			const start = !operator ? operand.location.start : operator.meta.location.start;
-// 			const end = operand.location.end;
-			const start = 0, end = 0;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(!operator ? operand : operator, operand);
 			return !operator ? operand : new Not(location, operand);
 		}
 		case "powerExpression": {
 			const { castExpression, powerLiteral } = children;
 			const [base] = castExpression.map(transform);
 			const [exponent] = powerLiteral.map(transform);
-// 			const { start } = base.location;
-// 			const end = !exponent ? base.location.end : exponent.location.end;
-			const start = 0, end = 0;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(base, !exponent ? base : exponent);
 			return !exponent ? base : new Power(location, base, exponent);
 		}
 		case "castExpression": {
@@ -397,14 +357,8 @@ export function transform(cst) {
 			const [value] = termExpression.map(transform);
 			const typeTransforms = type.map(transform);
 			const runtimeTypes = typeTransforms.map(t => t.tokenType.TYPE);
-// 			const { start } = value.location;
 			const [lastType] = typeTransforms.slice(-1);
-// 			const end = !type.length ? value.location.end : lastType.meta.location.end;
-			const start = 0, end = 0;
-			const location = {
-				start,
-				end
-			};
+			const location = locate(value, !type.length ? value : lastType);
 			if (identifier.length) {
 				throw new Error("Custom casts not implemented yet");
 			}
@@ -431,7 +385,7 @@ export function transform(cst) {
 		case "numberLiteral": {
 			const { NumberLiteral: [number] } = children;
 			const conversion = Number(number.image);
-			const location = {};
+			const location = locate(number);
 			return new Int32Value(location, new Int32Array([conversion]));
 		}
 		case "stringLiteral": {
@@ -442,12 +396,12 @@ export function transform(cst) {
 				.replace(/^"|"$/g, "")
 				.replace(/\\"/g, `"`)
 			);
-			const location = {}
+			const location = locate(string);
 			return new StringValue(location, conversion);
 		}
 		case "booleanLiteral": {
 			const { BooleanLiteral: [bool] } = children;
-			const location = {};
+			const location = locate(bool);
 			return new BoolValue(location, bool.image === "true");
 		}
 		case "functionLiteral": {
@@ -459,18 +413,13 @@ export function transform(cst) {
 					[body] = bodyType.map(transform);
 				}
 			}
-// 			const { start } = parenLeft && parenLeft.meta.location || parameters[0].location;
-// 			const { end } = parenRight && parenRight.meta.location || parameters[0].location;
-			const start = 0, end = 0;
-			const location = {
-				start,
-				end
-			};
+			const [firstParameter] = parameters;
+			const location = locate(parenLeft || firstParameter, parenRight || body);
 			return new FunctionExpression(location, parameters, body);
 		}
 		case "identifier": {
 			const { Identifier: [identifier] } = children;
-			const location = {};
+			const location = locate(identifier);
 			return new Id(location, identifier.image);
 		}
 		case "parenthesisExpression": {
@@ -483,7 +432,7 @@ export function transform(cst) {
 		}
 		case "powerLiteral": {
 			const { PowerLiteral: [power] } = children;
-			const location = {};
+			const location = locate(power);
 			return new Int32Value(location, new Int32Array([parseSuperScript(power.image)]));
 		}
 		default: {
