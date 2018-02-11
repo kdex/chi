@@ -323,6 +323,7 @@ export function transform(cst) {
 				else if (operator.tokenType === Minus) {
 					return new Subtract(location, r1, r2);
 				}
+				throw new Error("Unable to resolve additive expression");
 			});
 		}
 		case "multiplicativeExpression": {
@@ -337,6 +338,7 @@ export function transform(cst) {
 				else if (operator.tokenType === Slash) {
 					return new Divide(location, r1, r2);
 				}
+				throw new Error("Unable to resolve multiplicative expression");
 			});
 		}
 		case "notExpression": {
@@ -373,6 +375,7 @@ export function transform(cst) {
 					return term.map(transform)[0];
 				}
 			}
+			throw new Error("Unable to resolve term expression");
 		}
 		case "literal": {
 			const { numberLiteral, stringLiteral, booleanLiteral, functionLiteral } = children;
@@ -381,6 +384,7 @@ export function transform(cst) {
 					return literal.map(transform)[0];
 				}
 			}
+			throw new Error("Unable to resolve literal");
 		}
 		case "numberLiteral": {
 			const { NumberLiteral: [number] } = children;

@@ -58,7 +58,7 @@
 			"warn"
 		],
 		"consistent-return": [
-			"error"
+			"warn"
 		],
 		"consistent-this": [
 			"error"
@@ -137,6 +137,9 @@
 		"no-console": [
 			"off"
 		],
+		"no-constant-condition": [
+			"warn"
+		],
 		"no-dupe-args": [
 			"error"
 		],
@@ -186,6 +189,9 @@
 			"error"
 		],
 		"no-inline-comments": [
+			"warn"
+		],
+		"no-inner-declarations": [
 			"warn"
 		],
 		"no-invalid-regexp": [

@@ -1,16 +1,5 @@
 import { Lexer, createToken } from "chevrotain";
 import { err } from "print-log";
-import {
-	Int8Type as i8,
-	Int16Type as i16,
-	Int32Type as i32,
-	Uint8Type as u8,
-	Uint16Type as u16,
-	Uint32Type as u32,
-	StringType as string,
-	BoolType as bool,
-	RecursiveType as infinity
-} from "./Types";
 const { SKIPPED, NA } = Lexer;
 const Identifier = createToken({
 	name: "Identifier",

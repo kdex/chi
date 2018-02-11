@@ -14,7 +14,7 @@
     "postinstall": "npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "kdex",
   "license": "GPL-3.0",
   "devDependencies": {
     "babel-eslint": "^8.2.1",

@@ -1,4 +1,4 @@
-import { debug, err, warn } from "print-log";
+import { err, warn } from "print-log";
 import { ReferenceError } from "./Error";
 import {
 	Block,
@@ -38,7 +38,6 @@ import {
 	Int8Type,
 	Int16Type,
 	Int32Type,
-	UintType,
 	Uint8Type,
 	Uint16Type,
 	Uint32Type,
@@ -50,9 +49,6 @@ import {
 	RecursiveType,
 	AnyType
 } from "./Types";
-import * as lexerImports from "./Lexer";
-import { Type as TypeToken } from "./Lexer";
-const types = Object.values(lexerImports).filter(x => TypeToken.isPrototypeOf(x));
 const infer = (expression, type) => {
 	if (expression.typeHint) {
 		warn(`Overwriting type hint ${expression.typeHint} of ${expression} with ${type}`);

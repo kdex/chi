@@ -30,16 +30,13 @@ import {
 	Cast
 } from "./InterpreterClasses";
 import {
-	IntType,
 	Int8Type,
 	Int16Type,
 	Int32Type,
-	UintType,
 	Uint8Type,
 	Uint16Type,
 	Uint32Type,
-	FixedIntegerType,
-	StringType
+	FixedIntegerType
 } from "./Types";
 export default function interpret(expression, environment = new Environment(), store = new Store()) {
 	const π = (expression, env = environment, s = store) => interpret(expression, env, s);
@@ -82,6 +79,8 @@ export default function interpret(expression, environment = new Environment(), s
 					case Uint32Type:
 						value = Uint32Value;
 						break;
+					default:
+						throw new Error("Unimplemented fixed integer type");
 				}
 			}
 			if (expression instanceof And) {
@@ -118,12 +117,21 @@ export default function interpret(expression, environment = new Environment(), s
 					return [value.power(left, right), s2];
 				}
 			}
+			else {
+				throw new Error("Unimplemented binary operator");
+			}
 		}
 		else if (expression instanceof UnaryOperator) {
 			if (expression instanceof Not) {
 				const [result, s1] = π(expression.operand);
 				return [new BoolValue(null, !result.value), s1];
 			}
+			else {
+				throw new Error("Unimplemented unary operator");
+			}
+		}
+		else {
+			throw new Error("Unimplemented operator type");
 		}
 	}
 	else if (expression instanceof FunctionExpression) {
