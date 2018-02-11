@@ -1,4 +1,4 @@
-import { Lexer } from "chevrotain";
+import { Lexer, createToken } from "chevrotain";
 import { err } from "print-log";
 import {
 	Int8Type as i8,
@@ -12,182 +12,218 @@ import {
 	RecursiveType as infinity
 } from "./Types";
 const { SKIPPED, NA } = Lexer;
-/* TODO: Implement LINE_BREAKS: https://sap.github.io/chevrotain/website/Building_Grammars/resolving_lexer_errors.html#LINE_BREAKS */
-export class Identifier {
-	static PATTERN = /[a-zA-Z]\w*/;
-}
-export class Colon {
-	static PATTERN = /:/;
-}
-export class AdditiveOperator {
-	static PATTERN = NA;
-}
-export class MultiplicativeOperator {
-	static PATTERN = NA;
-}
-export class Comma {
-	static PATTERN = /,/;
-}
-export class Plus {
-	static PATTERN = /\+/;
-	static CATEGORIES = AdditiveOperator;
-}
-export class Minus {
-	static PATTERN = /-|–|—/;
-	static CATEGORIES = AdditiveOperator;
-}
-export class Asterisk {
-	static PATTERN = /\*|·|×/;
-	static CATEGORIES = MultiplicativeOperator;
-}
-export class Slash {
-	static PATTERN = /\//;
-	static CATEGORIES = MultiplicativeOperator;
-}
-export class AndOperator {
-	static PATTERN = /&&|∧/;
-}
-export class OrOperator {
-	static PATTERN = /\|\||∨/;
-}
-export class NotOperator {
-	static PATTERN = /¬|!/;
-}
-export class PowerLiteral {
-	static PATTERN = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/;
-}
-export class LeftBrace {
-	static PATTERN = /{/;
-}
-export class RightBrace {
-	static PATTERN = /}/;
-}
-export class LeftParenthesis {
-	static PATTERN = /\(/;
-}
-export class RightParenthesis {
-	static PATTERN = /\)/;
-}
-export class LeftBracket {
-	static PATTERN = /\[/;
-}
-export class RightBracket {
-	static PATTERN = /\]/;
-}
-export class Literal {
-	static PATTERN = NA;
-}
-export class BooleanLiteral {
-	static PATTERN = NA;
-	static CATEGORIES = Literal;
-}
-export class TrueLiteral {
-	static PATTERN = /true/;
-	static CATEGORIES = BooleanLiteral;
-}
-export class FalseLiteral {
-	static PATTERN = /false/;
-	static CATEGORIES = BooleanLiteral;
-}
-export class NumberLiteral {
-	static PATTERN = /\d+/;
-	static CATEGORIES = Literal;
-}
-export class StringLiteral {
-	static PATTERN = /(")(?:\\\1|.)*?\1/;
-	static CATEGORIES = Literal;
-}
-export class Semicolon {
-	static PATTERN = /;/;
-}
-export class Equals {
-	static PATTERN = /=/;
-}
-export class FatArrow {
-	static PATTERN = /=>/;
-}
-export class Keyword {
-	static PATTERN = NA;
-	static LONGER_ALT = Identifier;
-}
-export class While {
-	static PATTERN = /while/;
-	static CATEGORIES = Keyword;
-}
-export class For {
-	static PATTERN = /for/;
-	static CATEGORIES = Keyword;
-}
-export class Do {
-	static PATTERN = /do/;
-	static CATEGORIES = Keyword;
-}
-export class Let {
-	static PATTERN = /let/;
-	static CATEGORIES = Keyword;
-}
-export class If {
-	static PATTERN = /if/;
-	static CATEGORIES = Keyword;
-}
-export class Else {
-	static PATTERN = /else/;
-	static CATEGORIES = Keyword;
-}
-export class Type {
-	static PATTERN = NA;
-	static CATEGORIES = Keyword;
-}
-export class TypeBool {
-	static PATTERN = /bool/;
-	static TYPE = bool;
-	static CATEGORIES = Type;
-}
-export class TypeInt8 {
-	static PATTERN = /i8/;
-	static TYPE = i8;
-	static CATEGORIES = Type;
-}
-export class TypeInt16 {
-	static PATTERN = /i16/;
-	static TYPE = i16;
-	static CATEGORIES = Type;
-}
-export class TypeInt32 {
-	static PATTERN = /i32/;
-	static TYPE = i32;
-	static CATEGORIES = Type;
-}
-export class TypeUint8 {
-	static PATTERN = /u8/;
-	static TYPE = u8;
-	static CATEGORIES = Type;
-}
-export class TypeUint16 {
-	static PATTERN = /u16/;
-	static TYPE = u16;
-	static CATEGORIES = Type;
-}
-export class TypeUint32 {
-	static PATTERN = /u32/;
-	static TYPE = u32;
-	static CATEGORIES = Type;
-}
-export class TypeString {
-	static PATTERN = /string/;
-	static TYPE = string;
-	static CATEGORIES = Type;
-}
-export class TypeRecursive {
-	static PATTERN = /infinity/;
-	static TYPE = infinity;
-	static CATEGORIES = Type;
-}
-export class Whitespace {
-	static PATTERN = /\s+/;
-	static GROUP = SKIPPED;
-	static LINE_BREAKS = true;
-}
+const Identifier = createToken({
+	name: "Identifier",
+	pattern: /[a-zA-Z]\w*/
+});
+const Colon = createToken({
+	name: "Colon",
+	pattern: /:/
+});
+const AdditiveOperator = createToken({
+	name: "AdditiveOperator",
+	pattern: NA
+});
+const MultiplicativeOperator = createToken({
+	name: "MultiplicativeOperator",
+	pattern: NA
+});
+const Comma = createToken({
+	name: "Comma",
+	pattern: /,/
+});
+const Plus = createToken({
+	name: "Plus",
+	pattern: /\+/,
+	categories: [AdditiveOperator]
+});
+const Minus = createToken({
+	name: "Minus",
+	pattern: /-|–|—/,
+	categories: [AdditiveOperator]
+});
+const Asterisk = createToken({
+	name: "Asterisk",
+	pattern: /\*|·|×/,
+	categories: MultiplicativeOperator
+});
+const Slash = createToken({
+	name: "Slash",
+	pattern: /\//,
+	categories: MultiplicativeOperator
+});
+const AndOperator = createToken({
+	name: "AndOperator",
+	pattern: /&&|∧/
+});
+const OrOperator = createToken({
+	name: "OrOperator",
+	pattern: /\|\||∨/
+});
+const NotOperator = createToken({
+	name: "NotOperator",
+	pattern: /¬|!/
+});
+const PowerLiteral = createToken({
+	name: "PowerLiteral",
+	pattern: /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/
+});
+const LeftBrace = createToken({
+	name: "LeftBrace",
+	pattern: /{/
+});
+const RightBrace = createToken({
+	name: "RightBrace",
+	pattern: /}/
+});
+const LeftParenthesis = createToken({
+	name: "LeftParenthesis",
+	pattern: /\(/
+});
+const RightParenthesis = createToken({
+	name: "RightParenthesis",
+	pattern: /\)/
+});
+const LeftBracket = createToken({
+	name: "LeftBracket",
+	pattern: /\[/
+});
+const RightBracket = createToken({
+	name: "RightBracket",
+	pattern: /\]/
+});
+const Literal = createToken({
+	name: "Literal",
+	pattern: NA
+});
+const BooleanLiteral = createToken({
+	name: "BooleanLiteral",
+	pattern: NA,
+	categories: [Literal]
+});
+const TrueLiteral = createToken({
+	name: "TrueLiteral",
+	pattern: /true/,
+	categories: [BooleanLiteral]
+});
+const FalseLiteral = createToken({
+	name: "FalseLiteral",
+	pattern: /false/,
+	categories: [BooleanLiteral]
+});
+const NumberLiteral = createToken({
+	name: "NumberLiteral",
+	pattern: /\d+/,
+	categories: [Literal]
+});
+const StringLiteral = createToken({
+	name: "StringLiteral",
+	pattern: /(")(?:\\\1|.)*?\1/,
+	categories: [Literal]
+});
+const Semicolon = createToken({
+	name: "Semicolon",
+	pattern: /;/
+});
+const Equals = createToken({
+	name: "Equals",
+	pattern: /=/
+});
+const FatArrow = createToken({
+	name: "FatArrow",
+	pattern: /=>/
+});
+const Keyword = createToken({
+	name: "Keyword",
+	pattern: NA,
+	longerAlt: Identifier
+});
+const While = createToken({
+	name: "While",
+	pattern: /while/,
+	categories: [Keyword]
+});
+const For = createToken({
+	name: "For",
+	pattern: /for/,
+	categories: [Keyword]
+});
+const Do = createToken({
+	name: "Do",
+	pattern: /do/,
+	categories: [Keyword]
+});
+const Let = createToken({
+	name: "Let",
+	pattern: /let/,
+	categories: [Keyword]
+});
+const If = createToken({
+	name: "If",
+	pattern: /if/,
+	categories: [Keyword]
+});
+const Else = createToken({
+	name: "Else",
+	pattern: /else/,
+	categories: [Keyword]
+});
+const Type = createToken({
+	name: "Type",
+	pattern: NA,
+	categories: [Keyword]
+});
+const TypeBool = createToken({
+	name: "Type",
+	pattern: /bool/,
+	categories: [Type]
+});
+const TypeInt8 = createToken({
+	name: "TypeInt8",
+	pattern: /i8/,
+	categories: [Type]
+});
+const TypeInt16 = createToken({
+	name: "TypeInt16",
+	pattern: /i16/,
+	categories: [Type]
+});
+const TypeInt32 = createToken({
+	name: "TypeInt32",
+	pattern: /i32/,
+	categories: [Type]
+});
+const TypeUint8 = createToken({
+	name: "TypeUint8",
+	pattern: /u8/,
+	categories: [Type]
+});
+const TypeUint16 = createToken({
+	name: "TypeUint16",
+	pattern: /u16/,
+	categories: [Type]
+});
+const TypeUint32 = createToken({
+	name: "TypeUint32",
+	pattern: /u32/,
+	categories: [Type]
+});
+const TypeString = createToken({
+	name: "TypeString",
+	pattern: /string/,
+	categories: [Type]
+});
+const TypeRecursive = createToken({
+	name: "TypeRecursive",
+	pattern: /infinity/,
+	categories: [Type]
+});
+const Whitespace = createToken({
+	name: "Whitespace",
+	pattern: /\s+/,
+	group: SKIPPED,
+	lineBreaks: true
+});
 export const allTokens = [
 	Whitespace,
 	LeftBrace,
