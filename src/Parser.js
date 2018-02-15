@@ -25,7 +25,15 @@ import {
 	FatArrow,
 	Comma,
 	Colon,
-	Type
+	Type,
+	TypeInt8,
+	TypeInt16,
+	TypeInt32,
+	TypeUint8,
+	TypeUint16,
+	TypeUint32,
+	TypeString,
+	TypeBool
 } from "./Lexer";
 import {
 // 	NumberValue,
@@ -47,17 +55,25 @@ import {
 	Apply,
 	Cast
 } from "./InterpreterClasses";
+import {
+	Int8Type,
+	Int16Type,
+	Int32Type,
+	Uint8Type,
+	Uint16Type,
+	Uint32Type,
+	StringType,
+	BoolType
+} from "./Types";
 function parseSuperScript(value) {
 	const superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 	return Number.parseInt(Array.from(value).map(c => String(superscripts.indexOf(c))).join(""));
 }
 export default class ChiParser extends Parser {
 	constructor(input) {
-		allTokens.forEach(x => {
-			x.tokenName = x.name;
-		});
 		super(input, allTokens, {
-			outputCst: true
+			outputCst: true,
+			recoveryEnabled: true
 		});
 		this.RULE("block", () => this.MANY(() => this.SUBRULE(this.statement)));
 		this.RULE("statement", () => {
@@ -250,6 +266,16 @@ const locate = (start, end = start) => ({
 		column: end.endColumn || end.location.end.column
 	}
 });
+const tokenTypeMap = new Map([
+	[TypeInt8, Int8Type],
+	[TypeInt16, Int16Type],
+	[TypeInt32, Int32Type],
+	[TypeUint8, Uint8Type],
+	[TypeUint16, Uint16Type],
+	[TypeUint32, Uint32Type],
+	[TypeString, StringType],
+	[TypeBool, BoolType]
+]);
 /**
 * Recursively transforms a CST to an AST
 * @param {object} cst
@@ -358,7 +384,7 @@ export function transform(cst) {
 			const { termExpression, identifier, type } = children;
 			const [value] = termExpression.map(transform);
 			const typeTransforms = type.map(transform);
-			const runtimeTypes = typeTransforms.map(t => t.tokenType.TYPE);
+			const runtimeTypes = typeTransforms.map(t => tokenTypeMap.get(t.tokenType));
 			const [lastType] = typeTransforms.slice(-1);
 			const location = locate(value, !type.length ? value : lastType);
 			if (identifier.length) {

@@ -1,217 +1,217 @@
 import { Lexer, createToken } from "chevrotain";
 import { err } from "print-log";
 const { SKIPPED, NA } = Lexer;
-const Identifier = createToken({
+export const Identifier = createToken({
 	name: "Identifier",
 	pattern: /[a-zA-Z]\w*/
 });
-const Colon = createToken({
+export const Colon = createToken({
 	name: "Colon",
 	pattern: /:/
 });
-const AdditiveOperator = createToken({
+export const AdditiveOperator = createToken({
 	name: "AdditiveOperator",
 	pattern: NA
 });
-const MultiplicativeOperator = createToken({
+export const MultiplicativeOperator = createToken({
 	name: "MultiplicativeOperator",
 	pattern: NA
 });
-const Comma = createToken({
+export const Comma = createToken({
 	name: "Comma",
 	pattern: /,/
 });
-const Plus = createToken({
+export const Plus = createToken({
 	name: "Plus",
 	pattern: /\+/,
 	categories: [AdditiveOperator]
 });
-const Minus = createToken({
+export const Minus = createToken({
 	name: "Minus",
 	pattern: /-|–|—/,
 	categories: [AdditiveOperator]
 });
-const Asterisk = createToken({
+export const Asterisk = createToken({
 	name: "Asterisk",
 	pattern: /\*|·|×/,
 	categories: MultiplicativeOperator
 });
-const Slash = createToken({
+export const Slash = createToken({
 	name: "Slash",
 	pattern: /\//,
 	categories: MultiplicativeOperator
 });
-const AndOperator = createToken({
+export const AndOperator = createToken({
 	name: "AndOperator",
 	pattern: /&&|∧/
 });
-const OrOperator = createToken({
+export const OrOperator = createToken({
 	name: "OrOperator",
 	pattern: /\|\||∨/
 });
-const NotOperator = createToken({
+export const NotOperator = createToken({
 	name: "NotOperator",
 	pattern: /¬|!/
 });
-const PowerLiteral = createToken({
+export const PowerLiteral = createToken({
 	name: "PowerLiteral",
 	pattern: /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/
 });
-const LeftBrace = createToken({
+export const LeftBrace = createToken({
 	name: "LeftBrace",
 	pattern: /{/
 });
-const RightBrace = createToken({
+export const RightBrace = createToken({
 	name: "RightBrace",
 	pattern: /}/
 });
-const LeftParenthesis = createToken({
+export const LeftParenthesis = createToken({
 	name: "LeftParenthesis",
 	pattern: /\(/
 });
-const RightParenthesis = createToken({
+export const RightParenthesis = createToken({
 	name: "RightParenthesis",
 	pattern: /\)/
 });
-const LeftBracket = createToken({
+export const LeftBracket = createToken({
 	name: "LeftBracket",
 	pattern: /\[/
 });
-const RightBracket = createToken({
+export const RightBracket = createToken({
 	name: "RightBracket",
 	pattern: /\]/
 });
-const Literal = createToken({
+export const Literal = createToken({
 	name: "Literal",
 	pattern: NA
 });
-const BooleanLiteral = createToken({
+export const BooleanLiteral = createToken({
 	name: "BooleanLiteral",
 	pattern: NA,
 	categories: [Literal]
 });
-const TrueLiteral = createToken({
+export const TrueLiteral = createToken({
 	name: "TrueLiteral",
 	pattern: /true/,
 	categories: [BooleanLiteral]
 });
-const FalseLiteral = createToken({
+export const FalseLiteral = createToken({
 	name: "FalseLiteral",
 	pattern: /false/,
 	categories: [BooleanLiteral]
 });
-const NumberLiteral = createToken({
+export const NumberLiteral = createToken({
 	name: "NumberLiteral",
 	pattern: /\d+/,
 	categories: [Literal]
 });
-const StringLiteral = createToken({
+export const StringLiteral = createToken({
 	name: "StringLiteral",
 	pattern: /(")(?:\\\1|.)*?\1/,
 	categories: [Literal]
 });
-const Semicolon = createToken({
+export const Semicolon = createToken({
 	name: "Semicolon",
 	pattern: /;/
 });
-const Equals = createToken({
+export const Equals = createToken({
 	name: "Equals",
 	pattern: /=/
 });
-const FatArrow = createToken({
+export const FatArrow = createToken({
 	name: "FatArrow",
 	pattern: /=>/
 });
-const Keyword = createToken({
+export const Keyword = createToken({
 	name: "Keyword",
 	pattern: NA,
-	longerAlt: Identifier
+	longer_alt: Identifier
 });
-const While = createToken({
+export const While = createToken({
 	name: "While",
 	pattern: /while/,
 	categories: [Keyword]
 });
-const For = createToken({
+export const For = createToken({
 	name: "For",
 	pattern: /for/,
 	categories: [Keyword]
 });
-const Do = createToken({
+export const Do = createToken({
 	name: "Do",
 	pattern: /do/,
 	categories: [Keyword]
 });
-const Let = createToken({
+export const Let = createToken({
 	name: "Let",
 	pattern: /let/,
 	categories: [Keyword]
 });
-const If = createToken({
+export const If = createToken({
 	name: "If",
 	pattern: /if/,
 	categories: [Keyword]
 });
-const Else = createToken({
+export const Else = createToken({
 	name: "Else",
 	pattern: /else/,
 	categories: [Keyword]
 });
-const Type = createToken({
+export const Type = createToken({
 	name: "Type",
 	pattern: NA,
 	categories: [Keyword]
 });
-const TypeBool = createToken({
-	name: "Type",
+export const TypeBool = createToken({
+	name: "TypeBool",
 	pattern: /bool/,
 	categories: [Type]
 });
-const TypeInt8 = createToken({
+export const TypeInt8 = createToken({
 	name: "TypeInt8",
 	pattern: /i8/,
 	categories: [Type]
 });
-const TypeInt16 = createToken({
+export const TypeInt16 = createToken({
 	name: "TypeInt16",
 	pattern: /i16/,
 	categories: [Type]
 });
-const TypeInt32 = createToken({
+export const TypeInt32 = createToken({
 	name: "TypeInt32",
 	pattern: /i32/,
 	categories: [Type]
 });
-const TypeUint8 = createToken({
+export const TypeUint8 = createToken({
 	name: "TypeUint8",
 	pattern: /u8/,
 	categories: [Type]
 });
-const TypeUint16 = createToken({
+export const TypeUint16 = createToken({
 	name: "TypeUint16",
 	pattern: /u16/,
 	categories: [Type]
 });
-const TypeUint32 = createToken({
+export const TypeUint32 = createToken({
 	name: "TypeUint32",
 	pattern: /u32/,
 	categories: [Type]
 });
-const TypeString = createToken({
+export const TypeString = createToken({
 	name: "TypeString",
 	pattern: /string/,
 	categories: [Type]
 });
-const TypeRecursive = createToken({
+export const TypeRecursive = createToken({
 	name: "TypeRecursive",
 	pattern: /infinity/,
 	categories: [Type]
 });
-const Whitespace = createToken({
+export const Whitespace = createToken({
 	name: "Whitespace",
 	pattern: /\s+/,
 	group: SKIPPED,
-	lineBreaks: true
+	line_breaks: true
 });
 export const allTokens = [
 	Whitespace,

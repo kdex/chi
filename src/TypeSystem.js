@@ -187,7 +187,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			if (left === StringType && right === StringType) {
 				return [StringType, s2];
 			}
-			const greaterDomain = getGreaterDomain(left, right);
+			const greaterDomain = left instanceof FixedIntegerType && right instanceof FixedIntegerType ? getGreaterDomain(left, right) : null;
 			if (expression instanceof And) {
 				if (left !== BoolType || right !== BoolType) {
 					throw new TypeError(`The operator "∧" is not defined for operands of type "${left}" and "${right}".`);
