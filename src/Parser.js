@@ -144,19 +144,22 @@ export default class ChiParser extends Parser {
 			/* Types that the target shall be cast to */
 			this.SUBRULE(this.targetCastList);
 			/* Potential invocation */
-			this.MANY2(() => {
-				this.CONSUME(LeftParenthesis);
-				this.OPTION(() => {
-					this.SUBRULE2(this.andExpression);
-					this.MANY3(() => {
-						this.CONSUME(Comma);
-						this.SUBRULE3(this.andExpression);
-					});
-				});
-				this.CONSUME(RightParenthesis);
+			this.MANY(() => {
+				this.SUBRULE(this.argumentList);
 			});
 			/* Types that the result shall be cast to */
 			this.SUBRULE(this.resultCastList);
+		});
+		this.RULE("argumentList", () => {
+			this.CONSUME(LeftParenthesis);
+			this.OPTION(() => {
+				this.SUBRULE(this.andExpression);
+				this.MANY(() => {
+					this.CONSUME(Comma);
+					this.SUBRULE2(this.andExpression);
+				});
+			});
+			this.CONSUME(RightParenthesis);
 		});
 		this.RULE("targetCastList", () => {
 			this.SUBRULE(this.castList);
@@ -412,8 +415,13 @@ export function transform(cst) {
 			const { castList } = children;
 			return castList.map(transform)[0];
 		}
+		case "argumentList": {
+			const { LeftParenthesis: [leftParen], RightParenthesis: [rightParen], andExpression } = children;
+			return andExpression.map(transform);
+		}
 		case "castExpression": {
-			const { termExpression, targetCastList, resultCastList, LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
+			const { termExpression, targetCastList, resultCastList, argumentList } = children;
+			const argumentLists = argumentList.map(transform);
 			const [targetCasts] = targetCastList.map(transform);
 			const [resultCasts] = resultCastList.map(transform);
 			const [target] = termExpression.map(transform);
@@ -431,7 +439,6 @@ export function transform(cst) {
 			*               casts   arguments   casts
 			*/
 			/* This expression might be followed by an invocation */
-			const [...invocationArgs] = andExpression.map(transform);
 			if (targetCasts.identifiers.length || resultCasts.identifiers.length) {
 				throw new Error(`"${identifier.image}" is not a type. Custom casts are not implemented yet.`);
 			}
@@ -441,14 +448,10 @@ export function transform(cst) {
 			const targetCast = [target, ...targetRuntimeTypes].reduce((x, y) => {
 				return new Cast(targetCastLocation, x, y);
 			});
-			let result;
-			if (leftParen && rightParen) {
-				const applicationLocation = locate(leftParen, rightParen);
-				result = new Apply(applicationLocation, targetCast, ...invocationArgs)
-			}
-			else {
-				result = targetCast;
-			}
+			const result = [targetCast, ...argumentLists].reduce((x, args) => {
+				const applicationLocation = locate(target /* TODO */);
+				return new Apply(applicationLocation, x, ...args);
+			});
 			return [result, ...resultRuntimeTypes].reduce((x, y) => {
 				return new Cast(resultCastLocation, x, y);
 			});
