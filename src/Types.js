@@ -34,24 +34,34 @@ export class FunctionType extends AnyType {
 		return this.inspect();
 	}
 }
-export class FixedIntegerType extends AnyType {}
-export class IntType extends FixedIntegerType {
+export class FixedIntegerType extends AnyType {
+	static width = "?";
+	static makeSigned() {
+		if (this.signed) {
+			return this.signed;
+		}
+		throw new Error(`Unable to make "${this}" signed`);
+	}
+	static makeUnsigned() {
+		if (this.unsigned) {
+			return this.unsigned;
+		}
+		throw new Error(`Unable to make "${this}" unsigned`);
+	}
 	static inspect() {
-		return `i${this.width}`;
+		return `${this.abbreviation}${this.width}`;
 	}
 }
-export class Int8Type extends IntType {
-	static width = 8;
-}
-export class Int16Type extends IntType {
-	static width = 16;
-}
-export class Int32Type extends IntType {
-	static width = 32;
-}
 export class UintType extends FixedIntegerType {
-	static inspect() {
-		return `u${this.width}`;
+	static abbreviation = "u";
+	static makeUnsigned() {
+		return this;
+	}
+}
+export class IntType extends FixedIntegerType {
+	static abbreviation = "i";
+	static makeSigned() {
+		return this;
 	}
 }
 export class Uint8Type extends UintType {
@@ -61,6 +71,15 @@ export class Uint16Type extends UintType {
 	static width = 16;
 }
 export class Uint32Type extends UintType {
+	static width = 32;
+}
+export class Int8Type extends IntType {
+	static width = 8;
+}
+export class Int16Type extends IntType {
+	static width = 16;
+}
+export class Int32Type extends IntType {
 	static width = 32;
 }
 export class StringType extends AnyType {
@@ -78,3 +97,9 @@ export class VoidType extends AnyType {
 		return "void";
 	}
 }
+Uint8Type.signed = Int8Type;
+Uint16Type.signed = Int16Type;
+Uint32Type.signed = Int32Type;
+Int8Type.unsigned = Uint8Type;
+Int16Type.unsigned = Uint16Type;
+Int32Type.unsigned = Uint32Type;

@@ -26,9 +26,11 @@ import {
 	Comma,
 	Colon,
 	Type,
+	TypeInt,
 	TypeInt8,
 	TypeInt16,
 	TypeInt32,
+	TypeUint,
 	TypeUint8,
 	TypeUint16,
 	TypeUint32,
@@ -56,9 +58,11 @@ import {
 	Cast
 } from "./InterpreterClasses";
 import {
+	IntType,
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	UintType,
 	Uint8Type,
 	Uint16Type,
 	Uint32Type,
@@ -192,7 +196,6 @@ export default class ChiParser extends Parser {
 					this.SUBRULE(this.type);
 				}
 			});
-			// identifier.typeHint = typeToken && typeToken.tokenType.TYPE || null;
 			this.CONSUME(Equals);
 			this.SUBRULE(this.expression);
 		});
@@ -267,9 +270,11 @@ const locate = (start, end = start) => ({
 	}
 });
 const tokenTypeMap = new Map([
+	[TypeInt, IntType],
 	[TypeInt8, Int8Type],
 	[TypeInt16, Int16Type],
 	[TypeInt32, Int32Type],
+	[TypeUint, UintType],
 	[TypeUint8, Uint8Type],
 	[TypeUint16, Uint16Type],
 	[TypeUint32, Uint32Type],
@@ -308,8 +313,6 @@ export function transform(cst) {
 			const { Let: [letToken], identifier, expression, type } = children;
 			const [hint] = type.map(transform);
 			const [id] = identifier.map(transform);
-			/* TODO: Move this to the static type checker */
-			id.typeHint = hint && hint.tokenType.TYPE || null;
 			const [argument] = expression.map(transform);
 			const location = locate(letToken, argument);
 			return new LetStatement(location, id, argument);

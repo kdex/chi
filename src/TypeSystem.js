@@ -68,7 +68,7 @@ export function getGreaterDomain(left, right) {
 			return right;
 		}
 	}
-	throw new Error(`getGreaterDomain: Not implemented yet ("${left}", "${right}")`);
+	throw new Error(`Implicit cast is not allowed ("${left}", "${right}")`);
 }
 const getTypeOf = (expression, environment = new Environment(), store = new Store()) => {
 	const typeOf = (expression, env = environment, s = store) => getTypeOf(expression, env, s);
@@ -403,15 +403,28 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 	}
 	else if (expression instanceof Cast) {
 		const { target, to: targetType } = expression;
-		target.typeHint = targetType;
+		/* If the targetType is a real type, we can infer the type early */
+		if (targetType !== UintType && targetType !== IntType) {
+			expression.to = targetType;
+		}
 		const [sourceType, s1] = typeOf(target);
 		if (targetType === sourceType) {
 			return [targetType, s1];
 		}
 		else {
 			if (FixedIntegerType.isPrototypeOf(targetType) && FixedIntegerType.isPrototypeOf(sourceType)) {
+				let returnType = targetType;
+				if (targetType === UintType) {
+					/* `u?` should be statically cast to a real type first */
+					returnType = sourceType.makeUnsigned();
+				}
+				else if (targetType === IntType) {
+					/* `i?` should be statically cast to a real type first */
+					returnType = sourceType.makeSigned();
+				}
+				expression.to = returnType;
 				/* Allow dynamic casting for integers */
-				return [targetType, s1];
+				return [returnType, s1];
 			}
 			else {
 				throw new TypeError(`Can not cast "${sourceType}" to "${targetType}"`);

@@ -167,6 +167,11 @@ export const TypeBool = createToken({
 	pattern: /bool/,
 	categories: [Type]
 });
+export const TypeInt = createToken({
+	name: "TypeInt",
+	pattern: /i/,
+	categories: [Type]
+});
 export const TypeInt8 = createToken({
 	name: "TypeInt8",
 	pattern: /i8/,
@@ -180,6 +185,11 @@ export const TypeInt16 = createToken({
 export const TypeInt32 = createToken({
 	name: "TypeInt32",
 	pattern: /i32/,
+	categories: [Type]
+});
+export const TypeUint = createToken({
+	name: "TypeUint",
+	pattern: /u/,
 	categories: [Type]
 });
 export const TypeUint8 = createToken({
@@ -250,15 +260,17 @@ export const allTokens = [
 	Do,
 	Let,
 	Type,
+	TypeRecursive,
 	TypeInt8,
 	TypeInt16,
 	TypeInt32,
+	TypeInt,
 	TypeUint8,
 	TypeUint16,
 	TypeUint32,
+	TypeUint,
 	TypeString,
 	TypeBool,
-	TypeRecursive,
 	Identifier
 ];
 export default class {
