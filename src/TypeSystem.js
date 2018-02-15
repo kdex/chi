@@ -278,7 +278,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			}
 		}
 		if (expression instanceof StringValue) {
-			infer(expression, Stringtype);
+			infer(expression, StringType);
 			return [StringType, store];
 		}
 		if (expression instanceof BoolValue) {

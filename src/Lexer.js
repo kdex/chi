@@ -9,6 +9,23 @@ export const Colon = createToken({
 	name: "Colon",
 	pattern: /:/
 });
+const differentiateSingleLetter = letter => (text, offset, matchedTokens, groups) => {
+	const [lastMatched] = matchedTokens.slice(-1);
+	if (lastMatched && lastMatched.tokenType === Colon) {
+		/* After colon, try to match identifier */
+		const rest = text.substr(offset);
+		const match = rest.match(Identifier.PATTERN);
+		if (match) {
+			if (match[0].length > 1) {
+				return null;
+			}
+			if (rest.startsWith(letter)) {
+				return letter;
+			}
+		}
+	}
+	return null;
+};
 export const AdditiveOperator = createToken({
 	name: "AdditiveOperator",
 	pattern: NA
@@ -169,7 +186,9 @@ export const TypeBool = createToken({
 });
 export const TypeInt = createToken({
 	name: "TypeInt",
-	pattern: /i/,
+	pattern: {
+		exec: differentiateSingleLetter("i")
+	},
 	categories: [Type]
 });
 export const TypeInt8 = createToken({
@@ -189,7 +208,9 @@ export const TypeInt32 = createToken({
 });
 export const TypeUint = createToken({
 	name: "TypeUint",
-	pattern: /u/,
+	pattern: {
+		exec: differentiateSingleLetter("u")
+	},
 	categories: [Type]
 });
 export const TypeUint8 = createToken({

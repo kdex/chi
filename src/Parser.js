@@ -440,7 +440,7 @@ export function transform(cst) {
 			*/
 			/* This expression might be followed by an invocation */
 			if (targetCasts.identifiers.length || resultCasts.identifiers.length) {
-				throw new Error(`"${identifier.image}" is not a type. Custom casts are not implemented yet.`);
+				throw new Error("Identifier casts are not implemented yet.");
 			}
 			/* TODO: Currently, `Cast` objects receive the location of the entire cast list.
 			* In the future, the location should rather be an individual cast's location.
