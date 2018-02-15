@@ -36,6 +36,12 @@ export function run(source) {
 			depth: null,
 			showHidden: false
 		}));
+	}
+	catch (e) {
+		err(e.message);
+		throw new Error("Static type check failed");
+	}
+	try {
 		debug("Interpreting…");
 		const [result, store] = interpret(ast);
 		debug(store);
@@ -46,8 +52,8 @@ export function run(source) {
 		};
 	}
 	catch (e) {
-		err(`"${e.constructor.name}": ${e.message}`);
-		throw e;
+		err(e.message);
+		throw new Error("Interpretation failed");
 	}
 }
 export default run;

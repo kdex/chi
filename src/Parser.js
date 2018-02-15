@@ -94,17 +94,6 @@ export default class ChiParser extends Parser {
 		});
 		this.RULE("expression", () => {
 			this.SUBRULE(this.andExpression);
-			this.MANY(() => {
-				this.CONSUME(LeftParenthesis);
-				this.OPTION2(() => {
-					this.SUBRULE2(this.andExpression);
-					this.MANY2(() => {
-						this.CONSUME(Comma);
-						this.SUBRULE3(this.andExpression);
-					});
-				});
-				this.CONSUME(RightParenthesis);
-			});
 		});
 		this.RULE("andExpression", () => {
 			this.SUBRULE(this.orExpression);
@@ -160,6 +149,17 @@ export default class ChiParser extends Parser {
 						ALT: () => this.SUBRULE(this.type)
 					}]
 				});
+			});
+			this.MANY2(() => {
+				this.CONSUME(LeftParenthesis);
+				this.OPTION(() => {
+					this.SUBRULE2(this.andExpression);
+					this.MANY3(() => {
+						this.CONSUME(Comma);
+						this.SUBRULE3(this.andExpression);
+					});
+				});
+				this.CONSUME(RightParenthesis);
 			});
 		});
 		this.RULE("type", () => {
@@ -318,11 +318,9 @@ export function transform(cst) {
 			return new LetStatement(location, id, argument);
 		}
 		case "expression": {
-			const { LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
-			const [and, ...invocationArgs] = andExpression.map(transform);
-			const [lastArgument] = invocationArgs.slice(-1);
-			const location = locate(leftParen ? leftParen : and, rightParen ? rightParen : lastArgument);
-			return !invocationArgs.length ? and : new Apply(location, and, ...invocationArgs);
+			const { andExpression } = children;
+			const [and] = andExpression.map(transform);
+			return and;
 		}
 		case "andExpression": {
 			const { orExpression } = children;
@@ -384,18 +382,27 @@ export function transform(cst) {
 			return !exponent ? base : new Power(location, base, exponent);
 		}
 		case "castExpression": {
-			const { termExpression, identifier, type } = children;
+			const { termExpression, identifier, type, LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
 			const [value] = termExpression.map(transform);
 			const typeTransforms = type.map(transform);
 			const runtimeTypes = typeTransforms.map(t => tokenTypeMap.get(t.tokenType));
 			const [lastType] = typeTransforms.slice(-1);
-			const location = locate(value, !type.length ? value : lastType);
+			const castLocation = locate(value, !type.length ? value : lastType);
+			/* This expression might be followed by an invocation */
+			const [...invocationArgs] = andExpression.map(transform);
 			if (identifier.length) {
-				throw new Error("Custom casts not implemented yet");
+				throw new Error(`"${identifier.image}" is not a type. Custom casts are not implemented yet.`);
 			}
-			return [value, ...runtimeTypes].reduce((x, y) => {
-				return new Cast(location, x, y);
+			const cast = [value, ...runtimeTypes].reduce((x, y) => {
+				return new Cast(castLocation, x, y);
 			});
+			if (leftParen && rightParen) {
+				const applicationLocation = locate(leftParen, rightParen);
+				return new Apply(applicationLocation, cast, ...invocationArgs)
+			}
+			else {
+				return cast;
+			}
 		}
 		case "termExpression": {
 			const { literal, identifier, parenthesisExpression } = children;

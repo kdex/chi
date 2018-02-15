@@ -52,7 +52,9 @@ import {
 } from "./Types";
 const infer = (expression, type) => {
 	if (expression.typeHint) {
-		warn(`Overwriting type hint ${expression.typeHint} of ${expression} with ${type}`);
+		if (expression.typeHint !== type) {
+			throw new Error(`Overwrote type hint "${expression.typeHint}" of "${expression}" with "${type}".`);
+		}
 	}
 	expression.typeHint = type;
 };
@@ -113,7 +115,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		return [result, s];
 	}
 	else if (expression instanceof Let) {
-		const { identifier, expression: boundExpression } = expression;
+		const { identifier, value: boundExpression } = expression;
 		const { name } = identifier;
 		const { typeHint } = identifier;
 		try {
@@ -122,9 +124,8 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				throw new TypeError(`Tried to declare "${name}" with type "${typeHint}", but bound to a value of type "${type}"`);
 			}
 			else {
-				if (!identifier.typeHint) {
-					infer(identifier, type);
-				}
+				infer(identifier, type);
+				infer(expression, type);
 				const newStore = new Store(s1);
 				const location = environment.set(name, newStore.nextLocation);
 				newStore.set(location, type);
@@ -141,6 +142,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 						store.set(location, new RecursiveType(identifier));
 						const [type, s1] = typeOf(boundExpression);
 						infer(identifier, type);
+						infer(expression, type);
 						return [type, s1];
 					}
 					else {
@@ -248,31 +250,39 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		if (expression instanceof NumberValue) {
 			if (expression instanceof IntValue) {
 				if (expression instanceof Int8Value) {
+					infer(expression, Int8Type);
 					return [Int8Type, store];
 				}
 				if (expression instanceof Int16Value) {
+					infer(expression, Int16Type);
 					return [Int16Type, store];
 				}
 				if (expression instanceof Int32Value) {
+					infer(expression, Int32Type);
 					return [Int32Type, store];
 				}
 			}
 			if (expression instanceof UintValue) {
 				if (expression instanceof Uint8Value) {
+					infer(expression, Uint8Type);
 					return [Uint8Type, store];
 				}
 				if (expression instanceof Int16Value) {
+					infer(expression, Uint16Type);
 					return [Uint16Type, store];
 				}
 				if (expression instanceof Int32Value) {
+					infer(expression, Uint32Type);
 					return [Uint32Type, store];
 				}
 			}
 		}
 		if (expression instanceof StringValue) {
+			infer(expression, Stringtype);
 			return [StringType, store];
 		}
 		if (expression instanceof BoolValue) {
+			infer(expression, BoolType);
 			return [BoolType, store];
 		}
 	}
@@ -398,6 +408,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		}
 		else {
 			const location = environment.get(name);
+			infer(expression, store.get(location));
 			return [store.get(location), store];
 		}
 	}

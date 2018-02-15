@@ -192,7 +192,7 @@ export default function interpret(expression, environment = new Environment(), s
 		}
 	}
 	else if (expression instanceof Let) {
-		const { identifier, expression: boundExpression } = expression;
+		const { identifier, value: boundExpression } = expression;
 		const { name } = identifier;
 		const [value, s1] = π(boundExpression);
 		const newStore = new Store(s1);
