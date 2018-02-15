@@ -139,17 +139,11 @@ export default class ChiParser extends Parser {
 			});
 		});
 		this.RULE("castExpression", () => {
+			/* Cast target */
 			this.SUBRULE(this.termExpression);
-			this.MANY(() => {
-				this.CONSUME(Colon);
-				this.OR({
-					DEF: [{
-						ALT: () => this.SUBRULE(this.identifier)
-					}, {
-						ALT: () => this.SUBRULE(this.type)
-					}]
-				});
-			});
+			/* Types that the target shall be cast to */
+			this.SUBRULE(this.targetCastList);
+			/* Potential invocation */
 			this.MANY2(() => {
 				this.CONSUME(LeftParenthesis);
 				this.OPTION(() => {
@@ -160,6 +154,26 @@ export default class ChiParser extends Parser {
 					});
 				});
 				this.CONSUME(RightParenthesis);
+			});
+			/* Types that the result shall be cast to */
+			this.SUBRULE(this.resultCastList);
+		});
+		this.RULE("targetCastList", () => {
+			this.SUBRULE(this.castList);
+		});
+		this.RULE("resultCastList", () => {
+			this.SUBRULE(this.castList);
+		});
+		this.RULE("castList", () => {
+			this.MANY(() => {
+				this.CONSUME(Colon);
+				this.OR({
+					DEF: [{
+						ALT: () => this.SUBRULE(this.identifier)
+					}, {
+						ALT: () => this.SUBRULE(this.type)
+					}]
+				});
 			});
 		});
 		this.RULE("type", () => {
@@ -381,28 +395,63 @@ export function transform(cst) {
 			const location = locate(base, !exponent ? base : exponent);
 			return !exponent ? base : new Power(location, base, exponent);
 		}
-		case "castExpression": {
-			const { termExpression, identifier, type, LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
-			const [value] = termExpression.map(transform);
+		case "castList": {
+			const { identifier, type } = children;
+			const identifierTransforms = identifier.map(transform);
 			const typeTransforms = type.map(transform);
-			const runtimeTypes = typeTransforms.map(t => tokenTypeMap.get(t.tokenType));
-			const [lastType] = typeTransforms.slice(-1);
-			const castLocation = locate(value, !type.length ? value : lastType);
+			return {
+				identifiers: identifierTransforms,
+				types: typeTransforms
+			};
+		}
+		case "targetCastList": {
+			const { castList } = children;
+			return castList.map(transform)[0];
+		}
+		case "resultCastList": {
+			const { castList } = children;
+			return castList.map(transform)[0];
+		}
+		case "castExpression": {
+			const { termExpression, targetCastList, resultCastList, LeftParenthesis: [leftParen], andExpression, RightParenthesis: [rightParen] } = children;
+			const [targetCasts] = targetCastList.map(transform);
+			const [resultCasts] = resultCastList.map(transform);
+			const [target] = termExpression.map(transform);
+			const targetRuntimeTypes = targetCasts.types.map(t => tokenTypeMap.get(t.tokenType));
+			const resultRuntimeTypes = resultCasts.types.map(t => tokenTypeMap.get(t.tokenType));
+			const [firstResultType] = resultCasts.types;
+			const [lastResultType] = resultCasts.types.slice(-1);
+			const [lastTargetType] = targetCasts.types.slice(-1);
+			const targetCastLocation = locate(target, !targetCasts.types.length ? target : lastTargetType);
+			const resultCastLocation = locate(resultCasts.types.length ? firstResultType : target, resultCasts.types.length ? lastResultType : target);
+			/*
+			* identifier : (i8=>u8) (1, 2, 3) : i8:u8
+			* ^^^^^^^^^^    ^^^^^^   ^^^^^^^    ^^^^^
+			*   target      target  invocation  result
+			*               casts   arguments   casts
+			*/
 			/* This expression might be followed by an invocation */
 			const [...invocationArgs] = andExpression.map(transform);
-			if (identifier.length) {
+			if (targetCasts.identifiers.length || resultCasts.identifiers.length) {
 				throw new Error(`"${identifier.image}" is not a type. Custom casts are not implemented yet.`);
 			}
-			const cast = [value, ...runtimeTypes].reduce((x, y) => {
-				return new Cast(castLocation, x, y);
+			/* TODO: Currently, `Cast` objects receive the location of the entire cast list.
+			* In the future, the location should rather be an individual cast's location.
+			*/
+			const targetCast = [target, ...targetRuntimeTypes].reduce((x, y) => {
+				return new Cast(targetCastLocation, x, y);
 			});
+			let result;
 			if (leftParen && rightParen) {
 				const applicationLocation = locate(leftParen, rightParen);
-				return new Apply(applicationLocation, cast, ...invocationArgs)
+				result = new Apply(applicationLocation, targetCast, ...invocationArgs)
 			}
 			else {
-				return cast;
+				result = targetCast;
 			}
+			return [result, ...resultRuntimeTypes].reduce((x, y) => {
+				return new Cast(resultCastLocation, x, y);
+			});
 		}
 		case "termExpression": {
 			const { literal, identifier, parenthesisExpression } = children;
