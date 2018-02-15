@@ -38,8 +38,8 @@ export function run(source) {
 		}));
 	}
 	catch (e) {
-		err(e.message);
-		throw new Error("Static type check failed");
+		err("Static type check failed");
+		throw e;
 	}
 	try {
 		debug("Interpreting…");
@@ -53,7 +53,8 @@ export function run(source) {
 	}
 	catch (e) {
 		err(e.message);
-		throw new Error("Interpretation failed");
+		err("Interpretation failed");
+		throw e;
 	}
 }
 export default run;
