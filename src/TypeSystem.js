@@ -38,6 +38,7 @@ import {
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	UintType,
 	Uint8Type,
 	Uint16Type,
 	Uint32Type,
@@ -56,45 +57,18 @@ const infer = (expression, type) => {
 	expression.typeHint = type;
 };
 export function getGreaterDomain(left, right) {
-	const leftInt8 = left === Int8Type;
-	const rightInt8 = right === Int8Type;
-	const leftInt16 = left === Int16Type;
-	const rightInt16 = right === Int16Type;
-	const leftInt32 = left === Int32Type;
-	const rightInt32 = right === Int32Type;
-	/* Casting Int8 */
-	if (leftInt8 && rightInt8) {
-		return left;
+	if (
+		IntType.isPrototypeOf(left) && IntType.isPrototypeOf(right) ||
+		UintType.isPrototypeOf(left) && UintType.isPrototypeOf(right)
+	) {
+		if (left.width >= right.width) {
+			return left;
+		}
+		else {
+			return right;
+		}
 	}
-	else if (leftInt8 && !rightInt8) {
-		return right;
-	}
-	else if (!leftInt8 && rightInt8) {
-		return left;
-	}
-	/* Casting Int16 */
-	else if (leftInt16 && rightInt16) {
-		return left;
-	}
-	else if (leftInt16 && !rightInt16) {
-		return right;
-	}
-	else if (!leftInt16 && rightInt16) {
-		return left;
-	}
-	/* Casting Int32 */
-	else if (leftInt32 && rightInt32) {
-		return left;
-	}
-	else if (leftInt32 && !rightInt32) {
-		return left;
-	}
-	else if (!leftInt32 && rightInt32) {
-		return right;
-	}
-	else {
-		throw new Error(`Domain: Not implemented yet ("${left}", "${right}")`);
-	}
+	throw new Error(`getGreaterDomain: Not implemented yet ("${left}", "${right}")`);
 }
 const getTypeOf = (expression, environment = new Environment(), store = new Store()) => {
 	const typeOf = (expression, env = environment, s = store) => getTypeOf(expression, env, s);
@@ -187,7 +161,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			if (left === StringType && right === StringType) {
 				return [StringType, s2];
 			}
-			const greaterDomain = left instanceof FixedIntegerType && right instanceof FixedIntegerType ? getGreaterDomain(left, right) : null;
+			const greaterDomain = FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right) ? getGreaterDomain(left, right) : null;
 			if (expression instanceof And) {
 				if (left !== BoolType || right !== BoolType) {
 					throw new TypeError(`The operator "∧" is not defined for operands of type "${left}" and "${right}".`);
@@ -213,7 +187,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					infer(expression, StringType);
 					return [StringType, s2];
 				}
-				if (IntType.isPrototypeOf(left) && IntType.isPrototypeOf(right)) {
+				if (FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right)) {
 					infer(expression, greaterDomain);
 					return [greaterDomain, s2];
 				}
@@ -222,7 +196,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 			}
 			else if (expression instanceof Subtract) {
-				if (IntType.isPrototypeOf(left) && IntType.isPrototypeOf(right)) {
+				if (FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right)) {
 					infer(expression, greaterDomain);
 					return [greaterDomain, s2];
 				}
@@ -231,7 +205,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 			}
 			else if (expression instanceof Multiply) {
-				if (IntType.isPrototypeOf(left) && IntType.isPrototypeOf(right)) {
+				if (FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right)) {
 					infer(expression, greaterDomain);
 					return [greaterDomain, s2];
 				}
@@ -240,7 +214,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 			}
 			else if (expression instanceof Divide) {
-				if (IntType.isPrototypeOf(left) && IntType.isPrototypeOf(right)) {
+				if (FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right)) {
 					infer(expression, greaterDomain);
 					return [greaterDomain, s2];
 				}
@@ -249,7 +223,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 			}
 			else if (expression instanceof Power) {
-				if (IntType.isPrototypeOf(left)) {
+				if (FixedIntegerType.isPrototypeOf(left)) {
 					infer(expression, left);
 					return [left, s2];
 				}

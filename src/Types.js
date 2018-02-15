@@ -35,37 +35,33 @@ export class FunctionType extends AnyType {
 	}
 }
 export class FixedIntegerType extends AnyType {}
-export class IntType extends FixedIntegerType {}
-export class Int8Type extends IntType {
+export class IntType extends FixedIntegerType {
 	static inspect() {
-		return "i8";
+		return `i${this.width}`;
 	}
+}
+export class Int8Type extends IntType {
+	static width = 8;
 }
 export class Int16Type extends IntType {
-	static inspect() {
-		return "i16";
-	}
+	static width = 16;
 }
 export class Int32Type extends IntType {
+	static width = 32;
+}
+export class UintType extends FixedIntegerType {
 	static inspect() {
-		return "i32";
+		return `u${this.width}`;
 	}
 }
-export class UintType extends FixedIntegerType {}
 export class Uint8Type extends UintType {
-	static inspect() {
-		return "u8";
-	}
+	static width = 8;
 }
 export class Uint16Type extends UintType {
-	static inspect() {
-		return "u16";
-	}
+	static width = 16;
 }
 export class Uint32Type extends UintType {
-	static inspect() {
-		return "u32";
-	}
+	static width = 32;
 }
 export class StringType extends AnyType {
 	static inspect() {
