@@ -246,7 +246,7 @@ export default class {
 		const result = this.internalLexer.tokenize(string);
 		if (result.errors.length) {
 			err("Lex errors detected: ", result.errors);
-			throw new Error(result.errors);
+			throw new Error(result.errors.map(x => x.message).join("\n"));
 		}
 		return result;
 	}
