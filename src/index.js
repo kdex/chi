@@ -39,7 +39,10 @@ export function run(source) {
 	}
 	catch (e) {
 		err("Static type check failed. Partially enhanced AST is shown below.");
-		checkTypes(ast);
+		debug(inspect(ast, {
+			depth: null,
+			showHidden: false
+		}));
 		throw e;
 	}
 	try {

@@ -175,7 +175,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 				else {
 					infer(expression, BoolType);
-					return [left, s2];
+					return [BoolType, s2];
 				}
 			}
 			if (expression instanceof And) {

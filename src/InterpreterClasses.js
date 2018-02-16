@@ -35,6 +35,7 @@ export class Store extends Map {
 	}
 }
 export class Locatable {
+	typeHint = null;
 	constructor(location = null) {
 		this.location = location;
 	}

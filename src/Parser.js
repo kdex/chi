@@ -95,14 +95,7 @@ export default class ChiParser extends Parser {
 			});
 		});
 		this.RULE("expression", () => {
-			this.SUBRULE(this.equalityExpression);
-		});
-		this.RULE("equalityExpression", () => {
 			this.SUBRULE(this.andExpression);
-			this.MANY(() => {
-				this.CONSUME(EqualityOperator);
-				this.SUBRULE2(this.andExpression);
-			});
 		});
 		this.RULE("andExpression", () => {
 			this.SUBRULE(this.orExpression);
@@ -112,9 +105,16 @@ export default class ChiParser extends Parser {
 			});
 		});
 		this.RULE("orExpression", () => {
-			this.SUBRULE(this.additiveExpression);
+			this.SUBRULE(this.equalityExpression);
 			this.MANY(() => {
 				this.CONSUME(OrOperator);
+				this.SUBRULE2(this.equalityExpression);
+			});
+		});
+		this.RULE("equalityExpression", () => {
+			this.SUBRULE(this.additiveExpression);
+			this.MANY(() => {
+				this.CONSUME(EqualityOperator);
 				this.SUBRULE2(this.additiveExpression);
 			});
 		});
@@ -343,18 +343,10 @@ export function transform(cst) {
 			const location = locate(letToken, argument);
 			return new LetStatement(location, id, argument);
 		}
-		case "equalityExpression": {
-			const { andExpression } = children;
-			const ands = andExpression.map(transform);
-			return ands.reduce((x, y) => {
-				const location = locate(x, y);
-				return new Equals(location, x, y);
-			});
-		}
 		case "expression": {
-			const { equalityExpression } = children;
-			const [equals] = equalityExpression.map(transform);
-			return equals;
+			const { andExpression } = children;
+			const [and] = andExpression.map(transform);
+			return and;
 		}
 		case "andExpression": {
 			const { orExpression } = children;
@@ -365,11 +357,19 @@ export function transform(cst) {
 			});
 		}
 		case "orExpression": {
-			const { additiveExpression } = children;
-			const [lhs, ...rhs] = additiveExpression.map(transform);
+			const { equalityExpression } = children;
+			const [lhs, ...rhs] = equalityExpression.map(transform);
 			return !rhs.length ? lhs : [lhs, ...rhs].reduce((r1, r2) => {
 				const location = locate(r1, r2);
 				return new Or(location, r1, r2);
+			});
+		}
+		case "equalityExpression": {
+			const { additiveExpression } = children;
+			const ands = additiveExpression.map(transform);
+			return ands.reduce((x, y) => {
+				const location = locate(x, y);
+				return new Equals(location, x, y);
 			});
 		}
 		case "additiveExpression": {
