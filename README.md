@@ -65,6 +65,10 @@ let p = "hello";
 let q = " world";
 p + q;
 ```
+You can further cast strings to any fixed-width integer type. For instance, the following statement evaluates to `6:i32`:
+```js
+"2":i * "3":i;
+```
 ### Function expressions
 Function expressions allow you to abstract your code over variables. Note that in chi, you don't need an explicit `return` statement, as blocks evaluate to their last expression. So, in the example, `sum1` and `sum2` are semantically equivalent.
 ```js
