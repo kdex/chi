@@ -53,7 +53,9 @@ import {
 const infer = (expression, type) => {
 	if (expression.typeHint) {
 		if (expression.typeHint !== type) {
-			throw new Error(`Overwrote type hint "${expression.typeHint}" of "${expression}" with "${type}".`);
+			/* TODO: Recursive type check */
+			warn(`Overwrote type hint "${expression.typeHint}" of "${expression}" with "${type}".`);
+// 			throw new Error(`Overwrote type hint "${expression.typeHint}" of "${expression}" with "${type}".`);
 		}
 	}
 	expression.typeHint = type;
@@ -120,17 +122,18 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		const { typeHint } = identifier;
 		try {
 			const [type, s1] = typeOf(boundExpression);
-			if (typeHint && type !== typeHint) {
-				throw new TypeError(`Tried to declare "${name}" with type "${typeHint}", but bound to a value of type "${type}"`);
-			}
-			else {
+// 			if (typeHint && type !== typeHint) {
+				/* TODO: Re-implement after recursive type checks */
+// 				throw new TypeError(`Tried to declare "${name}" with type "${typeHint}", but bound to a value of type "${type}"`);
+// 			}
+// 			else {
 				infer(identifier, type);
 				infer(expression, type);
 				const newStore = new Store(s1);
 				const location = environment.set(name, newStore.nextLocation);
 				newStore.set(location, type);
 				return [type, newStore];
-			}
+// 			}
 		}
 		catch (e) {
 			if (e instanceof ReferenceError) {

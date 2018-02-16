@@ -39,6 +39,9 @@ export class Locatable {
 		const parens = this.typeHint instanceof FunctionType || this.typeHint instanceof RecursiveType;
 		return `${parens ? "(" : ""}${this.typeHint || "?"}${parens ? ")" : ""}`;
 	}
+	inspect() {
+		return this.constructor.name;
+	}
 	toString() {
 		return this.inspect();
 	}
