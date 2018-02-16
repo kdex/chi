@@ -144,100 +144,41 @@ export const Keyword = createToken({
 	pattern: NA,
 	longer_alt: Identifier
 });
-export const While = createToken({
-	name: "While",
-	pattern: /while/,
-	categories: [Keyword]
+const createKeywordToken = (name, rest = {}) => createToken({
+	name,
+	pattern: new RegExp(name.toLowerCase()),
+	longer_alt: Identifier,
+	categories: [Keyword],
+	...rest
 });
-export const For = createToken({
-	name: "For",
-	pattern: /for/,
-	categories: [Keyword]
+export const While = createKeywordToken("While");
+export const For = createKeywordToken("For");
+export const Do = createKeywordToken("Do");
+export const Let = createKeywordToken("Let");
+export const If = createKeywordToken("It");
+export const Else = createKeywordToken("Else");
+export const Type = createKeywordToken("Type", NA);
+const createTypeToken = (name, pattern, rest = {}) => createKeywordToken(name, {
+	name,
+	pattern,
+	categories: [Type],
+	...rest
 });
-export const Do = createToken({
-	name: "Do",
-	pattern: /do/,
-	categories: [Keyword]
+export const TypeBool = createTypeToken("TypeBool", /bool/);
+export const TypeInt = createTypeToken("TypeInt", {
+	exec: differentiateSingleLetter("i")
 });
-export const Let = createToken({
-	name: "Let",
-	pattern: /let/,
-	categories: [Keyword]
+export const TypeInt8 = createTypeToken("TypeInt8", /i8/);
+export const TypeInt16 = createTypeToken("TypeInt16", /i16/);
+export const TypeInt32 = createTypeToken("TypeInt32", /i32/);
+export const TypeUint = createTypeToken("TypeUint", {
+	exec: differentiateSingleLetter("u")
 });
-export const If = createToken({
-	name: "If",
-	pattern: /if/,
-	categories: [Keyword]
-});
-export const Else = createToken({
-	name: "Else",
-	pattern: /else/,
-	categories: [Keyword]
-});
-export const Type = createToken({
-	name: "Type",
-	pattern: NA,
-	categories: [Keyword]
-});
-export const TypeBool = createToken({
-	name: "TypeBool",
-	pattern: /bool/,
-	categories: [Type]
-});
-export const TypeInt = createToken({
-	name: "TypeInt",
-	pattern: {
-		exec: differentiateSingleLetter("i")
-	},
-	categories: [Type]
-});
-export const TypeInt8 = createToken({
-	name: "TypeInt8",
-	pattern: /i8/,
-	categories: [Type]
-});
-export const TypeInt16 = createToken({
-	name: "TypeInt16",
-	pattern: /i16/,
-	categories: [Type]
-});
-export const TypeInt32 = createToken({
-	name: "TypeInt32",
-	pattern: /i32/,
-	categories: [Type]
-});
-export const TypeUint = createToken({
-	name: "TypeUint",
-	pattern: {
-		exec: differentiateSingleLetter("u")
-	},
-	categories: [Type]
-});
-export const TypeUint8 = createToken({
-	name: "TypeUint8",
-	pattern: /u8/,
-	categories: [Type]
-});
-export const TypeUint16 = createToken({
-	name: "TypeUint16",
-	pattern: /u16/,
-	categories: [Type]
-});
-export const TypeUint32 = createToken({
-	name: "TypeUint32",
-	pattern: /u32/,
-	categories: [Type]
-});
-export const TypeString = createToken({
-	name: "TypeString",
-	pattern: /string/,
-	categories: [Type]
-});
-export const TypeRecursive = createToken({
-	name: "TypeRecursive",
-	pattern: /infinity/,
-	categories: [Type]
-});
+export const TypeUint8 = createTypeToken("TypeUint8", /u8/);
+export const TypeUint16 = createTypeToken("TypeUint16", /u16/);
+export const TypeUint32 = createTypeToken("TypeUint32", /u32/);
+export const TypeString = createTypeToken("TypeString", /string/);
+export const TypeRecursive = createTypeToken("TypeRecursive", /infinity/);
 export const Whitespace = createToken({
 	name: "Whitespace",
 	pattern: /\s+/,

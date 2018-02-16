@@ -168,7 +168,7 @@ export default function interpret(expression, environment = new Environment(), s
 				.reduce((x, y) => Object.assign(x, y), {});
 		};
 		/* First, bind all parameters to the arguments */
-		for (let i = 0; i < args.length; ++i) {
+		for (let i = 0; i < parameters.length; ++i) {
 			const arg = args[i];
 			const parameter = parameters[i];
 			/* Get the specified argument */

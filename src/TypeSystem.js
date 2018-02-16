@@ -310,6 +310,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		const [type, s1] = typeOf(target);
 		function checkArguments(domain, image) {
 			let currentStore = s1;
+			let applyType = image;
 			if (!args.length) {
 				const isVoidFunction = domain.length === 1 && domain[0] === VoidType;
 				/* No arguments were specified. Is this legal? */
@@ -348,21 +349,25 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				currentStore = s2;
 				if (valueMatchesType(arg, expectedType, environment)) {
 					infer(arg, argumentType);
+					/* Are we the last argument?
+					* `image.image` miraculously fixes the case:
+					* ```chi
+					* let curry2 = (x, y) => x + y
+					* curry2(5, 8)
+					* ```
+					*/
+					if (i === args.length - 1 && image.image) {
+						/* Yes: Therefore, we can infer the `Apply` type from the image */
+						for (let i = 0; i < args.length - 1; ++i) {
+							applyType = applyType.image;
+						}
+					}
 				}
 				else {
 					throw new TypeError(`Argument "${arg}" of type "${argumentType}" doesn't match expected type "${expectedType}"`);
 				}
 			});
-			if (args.length < domain.length) {
-				const restDomain = domain.slice(args.length);
-				const type = new FunctionType(restDomain, image);
-				infer(expression, type);
-				return [type, currentStore];
-			}
-			else {
-				infer(expression, image);
-				return [image, currentStore];
-			}
+			return [applyType, currentStore];
 		}
 		if (type instanceof FunctionType) {
 			const { domain, image } = type;
@@ -382,7 +387,17 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					throw new TypeError(`Tried to pass ${args.length} more argument${args.length === 1 ? "" : "s"} to ${target.image ? `"${target.image}"` : "closure"} of type "${actualType}" although none were expected`);
 				}
 				else {
-					return checkArguments(domain, image);
+					const [applyType, currentStore] = checkArguments(domain, image);
+					if (args.length < domain.length) {
+						const restDomain = domain.slice(args.length);
+						const type = new FunctionType(restDomain, image);
+						infer(expression, type);
+						return [type, currentStore];
+					}
+					else {
+						infer(expression, applyType);
+						return [applyType, currentStore];
+					}
 				}
 			}
 		}

@@ -38,7 +38,8 @@ export function run(source) {
 		}));
 	}
 	catch (e) {
-		err("Static type check failed");
+		err("Static type check failed. Partially enhanced AST is shown below.");
+		checkTypes(ast);
 		throw e;
 	}
 	try {
