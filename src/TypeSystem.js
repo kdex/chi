@@ -471,9 +471,16 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				return [returnType, s1];
 			}
 			if (sourceType === StringType && FixedIntegerType.isPrototypeOf(targetType)) {
-				infer(expression, Int32Type);
-				expression.to = Int32Type;
-				return [Int32Type, s1];
+				let returnType = targetType;
+				if (targetType === UintType) {
+					returnType = Uint32Type;
+				}
+				else if (targetType === IntType) {
+					returnType = Int32Type;
+				}
+				infer(expression, returnType);
+				expression.to = returnType;
+				return [returnType, s1];
 			}
 			if (sourceType == StringType && FixedIntegerType.isPrototypeOf(targetType)) {
 				infer(expression, targetType);
