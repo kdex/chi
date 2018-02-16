@@ -1,7 +1,10 @@
 import {
+	FixedIntegerType,
+	IntType,
 	Int8Type,
 	Int16Type,
 	Int32Type,
+	UintType,
 	Uint8Type,
 	Uint16Type,
 	Uint32Type,
@@ -10,6 +13,7 @@ import {
 	FunctionType,
 	RecursiveType
 } from "./Types";
+import { RuntimeError } from "./Error";
 const add = (x, y) => x + y;
 const subtract = (x, y) => x - y;
 const multiply = (x, y) => x * y;
@@ -64,15 +68,16 @@ export class Statement extends Locatable {
 }
 export class Expression extends Locatable {}
 export class Value extends Locatable {
-	equals(left, right) {
-		return this.constructor.compute(left, right, (x, y) => x == y);
-	}
-	constructor(location, primitive) {
+	/* TODO: Swap signature */
+	constructor(primitive, location = null) {
 		super(location);
 		this.value = primitive;
 	}
+	equals(left, right) {
+		return this.constructor.compute(left, right, (x, y) => x == y);
+	}
 	copy(...args) {
-		return new this.constructor(null, ...args);
+		return new this.constructor(...args);
 	}
 }
 export class Operator extends Expression {}
@@ -98,6 +103,24 @@ export class Subtract extends BinaryOperator {}
 export class Multiply extends BinaryOperator {}
 export class Divide extends BinaryOperator {}
 export class Power extends BinaryOperator {}
+const typeToValue = type => {
+	switch (type) {
+		case Int8Type:
+			return Int8Value;
+		case Int16Type:
+			return Int16Value;
+		case Int32Type:
+			return Int32Value;
+		case Uint8Type:
+			return Uint8Value;
+		case Uint16Type:
+			return Uint16Value;
+		case Uint32Type:
+			return Uint32Value;
+		default:
+			throw new Error(`Type-value conversion not impemented: ${type}`);
+	}
+};
 export class Let extends Statement {
 	constructor(location, identifier, expression) {
 		super(location, expression);
@@ -140,23 +163,6 @@ export class Cast extends Locatable {
 		this.to = to;
 	}
 }
-export class StringValue extends Value {
-	type = StringType;
-	to(type) {
-		if (type === StringType) {
-			return this;
-		}
-		else {
-			throw new TypeError(`Can't cast string "${this.value}" to anything but strings`);
-		}
-	}
-	concatenate(string) {
-		return new StringValue(null, this.value + string.value);
-	}
-	inspect() {
-		return this.value;
-	}
-}
 export class BoolValue extends Value {
 	type = BoolType;
 	not() {
@@ -188,7 +194,7 @@ export class NumberValue extends Value {
 		return f(this.number, op.number);
 	}
 	equals(op) {
-		return new BoolValue(null, this.compute(op, (x, y) => x == y));
+		return new BoolValue(this.compute(op, (x, y) => x == y));
 	}
 	copy(n) {
 		return super.copy(this.value.constructor.from([n]));
@@ -212,27 +218,8 @@ export class NumberValue extends Value {
 		return this.copyCompute(op, raise);
 	}
 	to(type) {
-		if (type === Int8Type) {
-			return new Int8Value(null, Int8Array.from(this.value));
-		}
-		else if (type === Int16Type) {
-			return new Int16Value(null, Int16Array.from(this.value));
-		}
-		else if (type === Int32Type) {
-			return new Int32Value(null, Int32Array.from(this.value));
-		}
-		if (type === Uint8Type) {
-			return new Uint8Value(null, Uint8Array.from(this.value));
-		}
-		else if (type === Uint16Type) {
-			return new Uint16Value(null, Uint16Array.from(this.value));
-		}
-		else if (type === Uint32Type) {
-			return new Uint32Value(null, Uint32Array.from(this.value));
-		}
-		else {
-			throw new Error(`Cast not impemented: ${type}`);
-		}
+		const valueClass = typeToValue(type);
+		return new valueClass(valueClass.store.from(this.value));
 	}
 	inspect() {
 		return `${this.value[0]}:${this.type}`;
@@ -241,22 +228,61 @@ export class NumberValue extends Value {
 export class IntValue extends NumberValue {}
 export class Int8Value extends IntValue {
 	type = Int8Type;
+	static store = Int8Array;
 }
 export class Int16Value extends IntValue {
 	type = Int16Type;
+	static store = Int16Array;
 }
 export class Int32Value extends IntValue {
 	type = Int32Type;
+	static store = Int32Array;
 }
 export class UintValue extends NumberValue {}
 export class Uint8Value extends UintValue {
 	type = Uint8Type;
+	static store = Uint8Array;
 }
 export class Uint16Value extends UintValue {
 	type = Uint16Type;
+	static store = Uint16Array;
 }
 export class Uint32Value extends UintValue {
 	type = Uint32Type;
+	static store = Uint32Array;
+}
+export class StringValue extends Value {
+	type = StringType;
+	to(type) {
+		if (type === StringType) {
+			return this;
+		}
+		else {
+			if (FixedIntegerType.isPrototypeOf(type)) {
+				if (!type.store) {
+					if (type === IntType) {
+						type = Int32Type;
+					}
+					if (type === UintType) {
+						type = Uint32Type;
+					}
+				}
+				const numericValue = Number.parseInt(this.value);
+				if (isNaN(numericValue)) {
+					throw new RuntimeError(`Can't cast string "${this.value}" to ${type}`);
+				}
+				const valueType = typeToValue(type);
+				return new valueType(valueType.store.from([numericValue]));
+			}
+			throw new TypeError(`Can't cast string "${this.value}" to ${type}`);
+		}
+	}
+	concatenate(string) {
+		return new StringValue(this.value + string.value);
+	}
+	inspect() {
+		return `${this.value}:${this.getHint()}`;
+	}
 }
 export class ClosureValue extends Value {
 	constructor(parameters, body, environment) {

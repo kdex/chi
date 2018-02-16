@@ -5,3 +5,8 @@ export class ReferenceError extends Error {
 		this.reference = reference;
 	}
 }
+export class RuntimeError extends Error {
+	constructor(message) {
+		super(message);
+	}
+};

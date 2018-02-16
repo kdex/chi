@@ -451,10 +451,11 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		}
 		const [sourceType, s1] = typeOf(target);
 		if (targetType === sourceType) {
+			infer(expression, targetType);
 			return [targetType, s1];
 		}
 		else {
-			if (FixedIntegerType.isPrototypeOf(targetType) && FixedIntegerType.isPrototypeOf(sourceType)) {
+			if (FixedIntegerType.isPrototypeOf(sourceType) && FixedIntegerType.isPrototypeOf(targetType)) {
 				let returnType = targetType;
 				if (targetType === UintType) {
 					/* `u?` should be statically cast to a real type first */
@@ -466,7 +467,17 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				}
 				expression.to = returnType;
 				/* Allow dynamic casting for integers */
+				infer(expression, returnType);
 				return [returnType, s1];
+			}
+			if (sourceType === StringType && FixedIntegerType.isPrototypeOf(targetType)) {
+				infer(expression, Int32Type);
+				expression.to = Int32Type;
+				return [Int32Type, s1];
+			}
+			if (sourceType == StringType && FixedIntegerType.isPrototypeOf(targetType)) {
+				infer(expression, targetType);
+				return [targetType, s1];
 			}
 			else {
 				throw new TypeError(`Can not cast "${sourceType}" to "${targetType}"`);

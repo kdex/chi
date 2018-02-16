@@ -210,7 +210,7 @@ export default function interpret(expression, environment = new Environment(), s
 		return [store.get(location), store];
 	}
 	else if (expression instanceof Cast) {
-		const { target, to: type } = expression;
+		const { target, typeHint: type } = expression;
 		const [value, s1] = π(target);
 		if (value instanceof Value) {
 			return [value.to(type), s1];

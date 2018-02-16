@@ -497,7 +497,7 @@ export function transform(cst) {
 			const { NumberLiteral: [number] } = children;
 			const conversion = Number(number.image);
 			const location = locate(number);
-			return new Int32Value(location, new Int32Array([conversion]));
+			return new Int32Value(new Int32Array([conversion]), location);
 		}
 		case "stringLiteral": {
 			const { StringLiteral: [string] } = children;
@@ -508,12 +508,12 @@ export function transform(cst) {
 				.replace(/\\"/g, `"`)
 			);
 			const location = locate(string);
-			return new StringValue(location, conversion);
+			return new StringValue(conversion, location);
 		}
 		case "booleanLiteral": {
 			const { BooleanLiteral: [bool] } = children;
 			const location = locate(bool);
-			return new BoolValue(location, bool.image === "true");
+			return new BoolValue(bool.image === "true", location);
 		}
 		case "functionLiteral": {
 			let body;
@@ -544,7 +544,7 @@ export function transform(cst) {
 		case "powerLiteral": {
 			const { PowerLiteral: [power] } = children;
 			const location = locate(power);
-			return new Int32Value(location, new Int32Array([parseSuperScript(power.image)]));
+			return new Int32Value(new Int32Array([parseSuperScript(power.image)]), location);
 		}
 		default: {
 			throw new Error(`CST transformation not implemented for CST node "${cst.name}"`);
