@@ -7,6 +7,7 @@ import {
 	Operator,
 	BinaryOperator,
 	UnaryOperator,
+	Equals,
 	Add,
 	Subtract,
 	Multiply,
@@ -164,14 +165,25 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				return [AnyType, s2];
 			}
 			if (left === StringType && right === StringType) {
+				infer(expression, StringType);
 				return [StringType, s2];
 			}
 			const greaterDomain = FixedIntegerType.isPrototypeOf(left) && FixedIntegerType.isPrototypeOf(right) ? getGreaterDomain(left, right) : null;
+			if (expression instanceof Equals) {
+				if (left !== right) {
+					throw new TypeError(`The operator "==" is not defined for operands of type "${left}" and "${right}".`);
+				}
+				else {
+					infer(expression, BoolType);
+					return [left, s2];
+				}
+			}
 			if (expression instanceof And) {
 				if (left !== BoolType || right !== BoolType) {
 					throw new TypeError(`The operator "∧" is not defined for operands of type "${left}" and "${right}".`);
 				}
 				else {
+					infer(expression, BoolType);
 					return [BoolType, s2];
 				}
 			}
@@ -180,6 +192,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					throw new TypeError(`The operator "∨" is not defined for operands of type "${left}" and "${right}".`);
 				}
 				else {
+					infer(expression, BoolType);
 					return [BoolType, s2];
 				}
 			}

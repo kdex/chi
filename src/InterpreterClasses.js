@@ -10,8 +10,11 @@ import {
 	FunctionType,
 	RecursiveType
 } from "./Types";
-export const LEFT = Symbol("Left-associative");
-export const RIGHT = Symbol("Right-associative");
+const add = (x, y) => x + y;
+const subtract = (x, y) => x - y;
+const multiply = (x, y) => x * y;
+const divide = (x, y) => x / y;
+const raise = (x, y) => x ** y;
 export class Environment extends Map {
 	set(name, location) {
 		super.set(name, location);
@@ -39,11 +42,11 @@ export class Locatable {
 		const parens = this.typeHint instanceof FunctionType || this.typeHint instanceof RecursiveType;
 		return `${parens ? "(" : ""}${this.typeHint || "?"}${parens ? ")" : ""}`;
 	}
-	inspect() {
-		return this.constructor.name;
-	}
 	toString() {
-		return this.inspect();
+		if (this.inspect) {
+			return this.inspect();
+		}
+		return super.toString();
 	}
 }
 export class Block extends Locatable {
@@ -60,9 +63,15 @@ export class Statement extends Locatable {
 }
 export class Expression extends Locatable {}
 export class Value extends Locatable {
+	equals(left, right) {
+		return this.constructor.compute(left, right, (x, y) => x == y);
+	}
 	constructor(location, primitive) {
 		super(location);
 		this.value = primitive;
+	}
+	copy(...args) {
+		return new this.constructor(null, ...args);
 	}
 }
 export class Operator extends Expression {}
@@ -79,6 +88,7 @@ export class UnaryOperator extends Operator {
 		this.operand = operand;
 	}
 }
+export class Equals extends BinaryOperator {}
 export class And extends BinaryOperator {}
 export class Or extends BinaryOperator {}
 export class Not extends UnaryOperator {}
@@ -92,12 +102,18 @@ export class Let extends Statement {
 		super(location, expression);
 		this.identifier = identifier;
 	}
+	toString() {
+		return `Let(${this.identifier.name}):${this.getHint()}`;
+	}
 }
 export class FunctionExpression extends Expression {
 	constructor(location, parameters, body) {
 		super(location);
 		this.parameters = parameters;
 		this.body = body;
+	}
+	toString() {
+		return `Function:${this.getHint()}`;
 	}
 }
 export class Apply extends Expression {
@@ -123,24 +139,76 @@ export class Cast extends Locatable {
 		this.to = to;
 	}
 }
+export class StringValue extends Value {
+	type = StringType;
+	to(type) {
+		if (type === StringType) {
+			return this;
+		}
+		else {
+			throw new TypeError(`Can't cast string "${this.value}" to anything but strings`);
+		}
+	}
+	concatenate(string) {
+		return new StringValue(null, this.value + string.value);
+	}
+	inspect() {
+		return this.value;
+	}
+}
+export class BoolValue extends Value {
+	type = BoolType;
+	not() {
+		return this.copy(!this.value);
+	}
+	and(op) {
+		return this.copy(this.value && op.value);
+	}
+	or(op) {
+		return this.copy(this.value || op.value);
+	}
+	to(type) {
+		if (type === BoolType) {
+			return this;
+		}
+		else {
+			throw new TypeError(`Can't cast boolean "${this.value}" to anything but bools`);
+		}
+	}
+	inspect() {
+		return `${this.value}:${this.type}`;
+	}
+}
 export class NumberValue extends Value {
 	get number() {
 		return this.value[0];
 	}
-	static add(left, right) {
-		return this.compute(left, right, (x, y) => x.number + y.number);
+	compute(op, f) {
+		return f(this.number, op.number);
 	}
-	static subtract(left, right) {
-		return this.compute(left, right, (x, y) => x.number - y.number);
+	equals(op) {
+		return new BoolValue(null, this.compute(op, (x, y) => x == y));
 	}
-	static multiply(left, right) {
-		return this.compute(left, right, (x, y) => x.number * y.number);
+	copy(n) {
+		return super.copy(this.value.constructor.from([n]));
 	}
-	static divide(left, right) {
-		return this.compute(left, right, (x, y) => x.number / y.number);
+	copyCompute(op, f) {
+		return this.copy(this.compute(op, f));
 	}
-	static power(left, right) {
-		return this.compute(left, right, (x, y) => x.number ** y.number);
+	add(op) {
+		return this.copyCompute(op, add);
+	}
+	subtract(op) {
+		return this.copyCompute(op, subtract);
+	}
+	multiply(op) {
+		return this.copyCompute(op, multiply);
+	}
+	divide(op) {
+		return this.copyCompute(op, divide);
+	}
+	raise(op) {
+		return this.copyCompute(op, raise);
 	}
 	to(type) {
 		if (type === Int8Type) {
@@ -172,83 +240,22 @@ export class NumberValue extends Value {
 export class IntValue extends NumberValue {}
 export class Int8Value extends IntValue {
 	type = Int8Type;
-	static compute(left, right, f) {
-		left.to(Int8Type);
-		right.to(Int8Type);
-		return new Int8Value(null, Int8Array.from([f(left, right)]));
-	}
 }
 export class Int16Value extends IntValue {
 	type = Int16Type;
-	static compute(left, right, f) {
-		left.to(Int16Type);
-		right.to(Int16Type);
-		return new Int16Value(null, Int16Array.from([f(left, right)]));
-	}
 }
 export class Int32Value extends IntValue {
 	type = Int32Type;
-	static compute(left, right, f) {
-		left.to(Int32Type);
-		right.to(Int32Type);
-		return new Int32Value(null, Int32Array.from([f(left, right)]));
-	}
 }
 export class UintValue extends NumberValue {}
 export class Uint8Value extends UintValue {
 	type = Uint8Type;
-	static compute(left, right, f) {
-		left.to(Uint8Type);
-		right.to(Uint8Type);
-		return new Uint8Value(null, Uint8Array.from([f(left, right)]));
-	}
 }
 export class Uint16Value extends UintValue {
 	type = Uint16Type;
-	static compute(left, right, f) {
-		left.to(Uint16Type);
-		right.to(Uint16Type);
-		return new Uint16Value(null, Uint16Array.from([f(left, right)]));
-	}
 }
 export class Uint32Value extends UintValue {
 	type = Uint32Type;
-	static compute(left, right, f) {
-		left.to(Uint32Type);
-		right.to(Uint32Type);
-		return new Uint32Value(null, Uint32Array.from([f(left, right)]));
-	}
-}
-export class StringValue extends Value {
-	type = StringType;
-	to(type) {
-		if (type === StringType) {
-			return this;
-		}
-		else {
-			throw new TypeError(`Can't cast string "${this.value}" to anything but strings`);
-		}
-	}
-	concatenate(string) {
-		return new StringValue(null, this.value + string.value);
-	}
-	inspect() {
-		return this.value;
-	}
-}
-export class BoolValue extends Value {
-	type = BoolType;
-	to(type) {
-		if (type === BoolType) {
-			return this;
-		}
-		else {
-			throw new TypeError(`Can't cast boolean "${this.value}" to anything but bools`);
-		}
-	}
-	inspect() {
-		return `${this.value}:${this.type}`;
-	}
 }
 export class ClosureValue extends Value {
 	constructor(parameters, body, environment) {

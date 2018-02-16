@@ -24,6 +24,7 @@ import {
 	Id,
 	FunctionExpression,
 	Apply,
+	Equals,
 	And,
 	Or,
 	Not,
@@ -83,15 +84,18 @@ export default function interpret(expression, environment = new Environment(), s
 						throw new Error("Unimplemented fixed integer type");
 				}
 			}
+			if (expression instanceof Equals) {
+				return [left.equals(right), s2];
+			}
 			if (expression instanceof And) {
-				return [new BoolValue(null, left.value && right.value), s2];
+				return [left.and(right), s2];
 			}
 			else if (expression instanceof Or) {
-				return [new BoolValue(null, left.value || right.value), s2];
+				return [left.or(right), s2];
 			}
 			else if (expression instanceof Add) {
 				if (value) {
-					return [value.add(left, right), s2];
+					return [left.add(right).to(typeHint), s2];
 				}
 				else {
 					return [left.concatenate(right), s2];
@@ -99,22 +103,22 @@ export default function interpret(expression, environment = new Environment(), s
 			}
 			else if (expression instanceof Subtract) {
 				if (value) {
-					return [value.subtract(left, right), s2];
+					return [left.subtract(right).to(typeHint), s2];
 				}
 			}
 			else if (expression instanceof Multiply) {
 				if (value) {
-					return [value.multiply(left, right), s2];
+					return [left.multiply(right).to(typeHint), s2];
 				}
 			}
 			else if (expression instanceof Divide) {
 				if (value) {
-					return [value.divide(left, right), s2];
+					return [left.divide(right).to(typeHint), s2];
 				}
 			}
 			else if (expression instanceof Power) {
 				if (value) {
-					return [value.power(left, right), s2];
+					return [left.raise(right).to(typeHint), s2];
 				}
 			}
 			else {
@@ -124,7 +128,7 @@ export default function interpret(expression, environment = new Environment(), s
 		else if (expression instanceof UnaryOperator) {
 			if (expression instanceof Not) {
 				const [result, s1] = π(expression.operand);
-				return [new BoolValue(null, !result.value), s1];
+				return [result.not(), s1];
 			}
 			else {
 				throw new Error("Unimplemented unary operator");

@@ -3,7 +3,8 @@ import {
 	allTokens,
 	Let,
 	Identifier,
-	Equals,
+	AssignmentOperator,
+	EqualityOperator,
 	NumberLiteral,
 	StringLiteral,
 	PowerLiteral,
@@ -43,6 +44,7 @@ import {
 	Int32Value,
 	BoolValue,
 	Let as LetStatement,
+	Equals,
 	And,
 	Or,
 	Not,
@@ -93,7 +95,14 @@ export default class ChiParser extends Parser {
 			});
 		});
 		this.RULE("expression", () => {
+			this.SUBRULE(this.equalityExpression);
+		});
+		this.RULE("equalityExpression", () => {
 			this.SUBRULE(this.andExpression);
+			this.MANY(() => {
+				this.CONSUME(EqualityOperator);
+				this.SUBRULE2(this.andExpression);
+			});
 		});
 		this.RULE("andExpression", () => {
 			this.SUBRULE(this.orExpression);
@@ -213,7 +222,7 @@ export default class ChiParser extends Parser {
 					this.SUBRULE(this.type);
 				}
 			});
-			this.CONSUME(Equals);
+			this.CONSUME(AssignmentOperator);
 			this.SUBRULE(this.expression);
 		});
 		this.RULE("literal", () => {
@@ -334,10 +343,18 @@ export function transform(cst) {
 			const location = locate(letToken, argument);
 			return new LetStatement(location, id, argument);
 		}
-		case "expression": {
+		case "equalityExpression": {
 			const { andExpression } = children;
-			const [and] = andExpression.map(transform);
-			return and;
+			const ands = andExpression.map(transform);
+			return ands.reduce((x, y) => {
+				const location = locate(x, y);
+				return new Equals(location, x, y);
+			});
+		}
+		case "expression": {
+			const { equalityExpression } = children;
+			const [equals] = equalityExpression.map(transform);
+			return equals;
 		}
 		case "andExpression": {
 			const { orExpression } = children;

@@ -131,9 +131,13 @@ export const Semicolon = createToken({
 	name: "Semicolon",
 	pattern: /;/
 });
-export const Equals = createToken({
-	name: "Equals",
+export const AssignmentOperator = createToken({
+	name: "AssignmentOperator",
 	pattern: /=/
+});
+export const EqualityOperator = createToken({
+	name: "EqualityOperator",
+	pattern: /==/
 });
 export const FatArrow = createToken({
 	name: "FatArrow",
@@ -213,7 +217,8 @@ export const allTokens = [
 	Colon,
 	FatArrow,
 	Comma,
-	Equals,
+	EqualityOperator,
+	AssignmentOperator,
 	Keyword,
 	If,
 	Else,
