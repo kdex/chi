@@ -37,6 +37,11 @@ Chi supports static typing. If no type is specified, a type will be inferred. Ma
 - `string`
 - `bool`
 
+There are two special types that are useful for casting. They are resolved to actual types at compile-time:
+- `i`
+- `u`
+
+They will cast a value to its equivalent unsigned or signed value. For instance, `a:u` will cast `a` such that it is unsigned. If `a` is of type `i8`, the cast will end up as `u8`, et cetera.
 ### Numbers, type casting
 There are currently the signed integer types `i8`, `i16`, and `i32` and their unsigned equivalents `u8`, `u16`, and `u32` for numerical values. If you don't specify the type of an integer literal, it will be assumed to be of type `i32`. In the example below, the first line will be `255:i8 + 2:i16`, which is equivalent to `-1:i8 + 2:i16`, which is equivalent to `-1:i16 + 2:i16`, which will be evaluated to `1:i16`.
 
