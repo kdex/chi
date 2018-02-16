@@ -81,7 +81,11 @@ export default class ChiParser extends Parser {
 			outputCst: true,
 			recoveryEnabled: true
 		});
-		this.RULE("block", () => this.MANY(() => this.SUBRULE(this.statement)));
+		this.RULE("block", () => {
+			this.MANY(() => {
+				this.SUBRULE(this.statement);
+			});
+		});
 		this.RULE("statement", () => {
 			this.OR({
 				DEF: [{
@@ -90,9 +94,7 @@ export default class ChiParser extends Parser {
 					ALT: () => this.SUBRULE(this.letStatement)
 				}]
 			});
-			this.OPTION({
-				DEF: () => this.CONSUME(Semicolon)
-			});
+			this.CONSUME(Semicolon);
 		});
 		this.RULE("expression", () => {
 			this.SUBRULE(this.andExpression);

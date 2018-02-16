@@ -1,2 +1,2 @@
 let y = () => 2¹⁰ + 2⁴;
-let formula = true ∧ false ∨ true
+let formula = true ∧ false ∨ true;

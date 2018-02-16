@@ -21,10 +21,9 @@ Chi, in its current form, is a meant to be a statically-typed, imperative progra
 There is a very simple demo [here](https://github.kdex.de/chi/) where you can play around with chi.
 ## Getting started
 ### Variables
-Variables allow you to bind a value to a name. Note that there is no significant whitespace and semicolons are *optional*.
+Variables allow you to bind a value to a name. Note that there is no significant whitespace and semicolons are required to end a statement.
 ```js
 let a = 3;
-let b = 5
 ```
 ### Types
 Chi supports static typing. If no type is specified, a type will be inferred. Mathematical operations where the operands are of different numeric type will produce a result in the number type with the greater domain. The set of types currently consists of:
@@ -52,7 +51,7 @@ The second line demonstrates that `1 + 128:i8` is equivalent to `1:i32 + 128:i8`
 ```
 You can also perform *cast chaining* as demonstrated below. This will result in `2258274`, a 32-bit integer, being cast to a 16-bit integer which will then be casted to an 8-bit integer. (This is equivalent to casting the 32-bit integer to an 8-bit integer directly, but there are indeed use cases where casting a value multiple times can turn out to be beneficial.)
 ```js
-2258274:i16:i8
+2258274:i16:i8;
 ```
 You can also cast entire expressions:
 ```js
@@ -62,40 +61,40 @@ let a = 1024;
 ### Strings
 A string literal can be constructed using *double quotes*. The operator `+` is overloaded to handle string concatenation if both operands are strings. Mixing types will throw an error. `"` can be escaped within a string using `\"`.
 ```js
-let p = "hello"
-let q = " world"
-p + q
+let p = "hello";
+let q = " world";
+p + q;
 ```
 ### Function expressions
 Function expressions allow you to abstract your code over variables. Note that in chi, you don't need an explicit `return` statement, as blocks evaluate to their last expression. So, in the example, `sum1` and `sum2` are semantically equivalent.
 ```js
-let identity = x => x
-let identity2 = (x) => x
-let sum1 = (a, b) => a + b
+let identity = x => x;
+let identity2 = (x) => x;
+let sum1 = (a, b) => a + b;
 let sum2 = (a, b) => {
-	let sum = a + b
-	sum
-}
+	let sum = a + b;
+	sum;
+};
 ```
 ### Automatic currying
 In chi, you *don't* need to explicitly return a lambda function that closes over a certain environment. Instead, if whatever a function returns doesn't have enough parameters bound in the environment, it becomes a closure. This means, `curry1` (which either returns a *closure* for *one* argument, or a *value* for *two* arguments) and `curry2` (which behaves exactly the same) can be used *interchangeably*.
 ```js
-let curry1 = x => y => x + y
-let curry2 = (x, y) => x + y
-curry1(5, 8)
-curry2(5, 8)
-curry1(5)(8)
-curry2(5)(8)
+let curry1 = x => y => x + y;
+let curry2 = (x, y) => x + y;
+curry1(5, 8);
+curry2(5, 8);
+curry1(5)(8);
+curry2(5)(8);
 ```
 ### Arity checking
 If you try to invoke a function with more arguments than it can receive, this can be detected due to static type checking and throw a `TypeError`.
 ```js
-let f = (x, y) => x * y - 3
-f(1, 2, 3)
+let f = (x, y) => x * y - 3;
+f(1, 2, 3);
 ```
 ### Unicode tokens
 Chi also allows certain tokens to have alternative forms. For example, the `MINUS` token can either be `Hyphen-minus`, `En Dash` or `Em Dash` (`-`, `–` and `—` respectively). Further examples how this can benefit esthetics can be seen below.
 ```js
-let y = (x, y) => 2¹⁰ · x² – y⁴
-let formula = true ∧ false ∨ true
+let y = (x, y) => 2¹⁰ · x² – y⁴;
+let formula = true ∧ false ∨ true;
 ```
