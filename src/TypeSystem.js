@@ -332,7 +332,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 				/* No arguments were specified. Is this legal? */
 				if (!isVoidFunction) {
 					/* Nope, it's not. */
-					throw new TypeError(`Tried to invoke ${target.image ? `"${target.image}"` : "closure"} without any arguments, although at least one formal parameter is expected.`);
+					throw new TypeError(`Tried to invoke "${target.image || "closure"}" without any arguments, although at least one formal parameter is expected.`);
 				}
 			}
 			args.forEach((arg, i) => {
@@ -358,7 +358,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 							}
 						}
 						else {
-							throw new Error(`More arguments specified than formal parameters available in invocation of ${target.image ? `"${target.image}"` : "closure"}`);
+							throw new Error(`More arguments specified than formal parameters available in invocation of "${target.image || "closure"}"`);
 						}
 					}
 				}
@@ -380,7 +380,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					}
 				}
 				else {
-					throw new TypeError(`Argument "${arg}" of type "${argumentType}" doesn't match expected type "${expectedType}"`);
+					throw new TypeError(`Argument "${arg}" of type "${argumentType}" doesn't match expected type "${expectedType}" in invocation of "${target.name || "closure"}"`);
 				}
 			});
 			return [applyType, currentStore];
@@ -394,13 +394,13 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 					return [image, s1];
 				}
 				else {
-					throw new TypeError(`Tried to invoke ${target.image ? `"${target.image}"` : "closure"} without any arguments`);
+					throw new TypeError(`Tried to invoke "${target.image || "closure"}" without any arguments`);
 				}
 			}
 			else {
 				if (isVoidFunction) {
 					const [actualType] = typeOf(target);
-					throw new TypeError(`Tried to pass ${args.length} more argument${args.length === 1 ? "" : "s"} to ${target.image ? `"${target.image}"` : "closure"} of type "${actualType}" although none were expected`);
+					throw new TypeError(`Tried to pass ${args.length} more argument${args.length === 1 ? "" : "s"} to "${target.image || "closure"}" of type "${actualType}" although none were expected`);
 				}
 				else {
 					const [applyType, currentStore] = checkArguments(domain, image);
@@ -429,7 +429,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 			return [newType, newStore];
 		}
 		else {
-			throw new TypeError(`Unable to invoke ${target.image ? `"${target.image}"` : "intermediate value"}, as it is of type "${type}".`);
+			throw new TypeError(`Unable to invoke "${target.image || "intermediate value"}", as it is of type "${type}".`);
 		}
 	}
 	else if (expression instanceof Id) {
