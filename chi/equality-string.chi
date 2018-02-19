@@ -1,0 +1,3 @@
+let x = "test";
+let y = "te" + "st";
+x == y;

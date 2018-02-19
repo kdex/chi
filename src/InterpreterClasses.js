@@ -73,8 +73,11 @@ export class Value extends Locatable {
 		super(location);
 		this.value = primitive;
 	}
-	equals(left, right) {
-		return this.constructor.compute(left, right, (x, y) => x == y);
+	compute(op, f) {
+		return f(this.value, op.value);
+	}
+	equals(op) {
+		return new BoolValue(this.compute(op, (x, y) => x == y));
 	}
 	copy(...args) {
 		return new this.constructor(...args);
