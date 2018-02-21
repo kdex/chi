@@ -20,7 +20,7 @@ import {
 	Uint32Value,
 	ClosureValue,
 	BoolValue,
-	Block,
+	BlockStatement,
 	Id,
 	FunctionExpression,
 	Apply,
@@ -44,7 +44,7 @@ export default function interpret(expression, environment = new Environment(), s
 	if (expression instanceof Value) {
 		return [expression, store];
 	}
-	else if (expression instanceof Block) {
+	else if (expression instanceof BlockStatement) {
 		const { content } = expression;
 		let result, s = store;
 		for (const expression of content) {

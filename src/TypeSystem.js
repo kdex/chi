@@ -1,7 +1,7 @@
 import { err, warn } from "print-log";
 import { ReferenceError } from "./Error";
 import {
-	Block,
+	BlockStatement,
 	Let,
 	Id,
 	Operator,
@@ -107,7 +107,7 @@ const getTypeOf = (expression, environment = new Environment(), store = new Stor
 		}
 		return false;
 	}
-	if (expression instanceof Block) {
+	if (expression instanceof BlockStatement) {
 		const { content } = expression;
 		let result, s = store;
 		for (const expression of content) {

@@ -49,7 +49,7 @@ import {
 	Or,
 	Not,
 	Id,
-	Block,
+	BlockStatement,
 	Add,
 	Subtract,
 	Multiply,
@@ -81,7 +81,7 @@ export default class ChiParser extends Parser {
 			outputCst: true,
 			recoveryEnabled: true
 		});
-		this.RULE("block", () => {
+		this.RULE("program", () => {
 			this.MANY(() => {
 				this.SUBRULE(this.statement);
 			});
@@ -89,14 +89,28 @@ export default class ChiParser extends Parser {
 		this.RULE("statement", () => {
 			this.OR({
 				DEF: [{
-					ALT: () => this.SUBRULE(this.expression)
+					ALT: () => {
+						this.SUBRULE(this.expressionStatement);
+						this.CONSUME(Semicolon);
+					}
 				}, {
-					ALT: () => this.SUBRULE(this.letStatement)
+					ALT: () => this.SUBRULE(this.blockStatement)
+				}, {
+					ALT: () => {
+						this.SUBRULE(this.letStatement);
+						this.CONSUME2(Semicolon);
+					}
 				}]
 			});
-			this.CONSUME(Semicolon);
 		});
-		this.RULE("expression", () => {
+		this.RULE("blockStatement", () => {
+			this.CONSUME(LeftBrace);
+			this.MANY(() => {
+				this.SUBRULE(this.statement);
+			});
+			this.CONSUME(RightBrace);
+		});
+		this.RULE("expressionStatement", () => {
 			this.SUBRULE(this.orExpression);
 		});
 		this.RULE("orExpression", () => {
@@ -212,7 +226,7 @@ export default class ChiParser extends Parser {
 		});
 		this.RULE("parenthesisExpression", () => {
 			this.CONSUME(LeftParenthesis);
-			this.SUBRULE(this.expression);
+			this.SUBRULE(this.expressionStatement);
 			this.CONSUME(RightParenthesis);
 		});
 		this.RULE("letStatement", () => {
@@ -225,7 +239,7 @@ export default class ChiParser extends Parser {
 				}
 			});
 			this.CONSUME(AssignmentOperator);
-			this.SUBRULE(this.expression);
+			this.SUBRULE(this.expressionStatement);
 		});
 		this.RULE("literal", () => {
 			return this.OR({
@@ -274,11 +288,11 @@ export default class ChiParser extends Parser {
 			this.CONSUME(FatArrow);
 			this.OR2({
 				DEF: [{
-					ALT: () => this.SUBRULE(this.expression)
+					ALT: () => this.SUBRULE(this.expressionStatement)
 				}, {
 					ALT: () => {
 						this.CONSUME(LeftBrace);
-						this.SUBRULE2(this.block);
+						this.SUBRULE2(this.blockStatement);
 						this.CONSUME(RightBrace);
 					}
 				}]
@@ -318,18 +332,24 @@ const tokenTypeMap = new Map([
 */
 export function transform(cst) {
 	const { children } = cst;
+	const transformBlock = () => {
+		const { statement } = children;
+		const statements = statement.map(transform);
+		const [firstStatement] = statements;
+		const [lastStatement] = statements.slice(-1);
+		const location = locate(firstStatement, lastStatement || firstStatement);
+		return new BlockStatement(location, ...statements);
+	};
 	switch (cst.name) {
-		case "block": {
-			const { statement } = children;
-			const statements = statement.map(transform);
-			const [firstStatement] = statements;
-			const [lastStatement] = statements.slice(-1);
-			const location = locate(firstStatement, lastStatement || firstStatement);
-			return new Block(location, ...statements);
+		case "program": {
+			return transformBlock();
+		}
+		case "blockStatement": {
+			return transformBlock();
 		}
 		case "statement": {
-			const { expression, letStatement } = children;
-			for (const statement of [expression, letStatement]) {
+			const { expressionStatement, blockStatement, letStatement } = children;
+			for (const statement of [expressionStatement, blockStatement, letStatement]) {
 				if (statement.length) {
 					return statement.map(transform)[0];
 				}
@@ -338,14 +358,14 @@ export function transform(cst) {
 			break;
 		}
 		case "letStatement": {
-			const { Let: [letToken], identifier, expression, type } = children;
+			const { Let: [letToken], identifier, expressionStatement, type } = children;
 			const [hint] = type.map(transform);
 			const [id] = identifier.map(transform);
-			const [argument] = expression.map(transform);
+			const [argument] = expressionStatement.map(transform);
 			const location = locate(letToken, argument);
 			return new LetStatement(location, id, argument);
 		}
-		case "expression": {
+		case "expressionStatement": {
 			const { orExpression } = children;
 			const [or] = orExpression.map(transform);
 			return or;
@@ -517,9 +537,9 @@ export function transform(cst) {
 		}
 		case "functionLiteral": {
 			let body;
-			const { LeftParenthesis: [parenLeft], identifier, expression, block, RightParenthesis: [parenRight] } = children;
+			const { LeftParenthesis: [parenLeft], identifier, expressionStatement, blockStatement, RightParenthesis: [parenRight] } = children;
 			const parameters = identifier.map(transform);
-			for (const bodyType of [expression, block]) {
+			for (const bodyType of [expressionStatement, blockStatement]) {
 				if (bodyType.length) {
 					[body] = bodyType.map(transform);
 				}
@@ -534,8 +554,8 @@ export function transform(cst) {
 			return new Id(location, identifier.image);
 		}
 		case "parenthesisExpression": {
-			const { expression } = children;
-			return expression.map(transform)[0];
+			const { expressionStatement } = children;
+			return expressionStatement.map(transform)[0];
 		}
 		case "type": {
 			const { Type: [type] } = children;

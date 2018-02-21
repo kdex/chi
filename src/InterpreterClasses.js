@@ -54,7 +54,7 @@ export class Locatable {
 		return super.toString();
 	}
 }
-export class Block extends Locatable {
+export class BlockStatement extends Locatable {
 	constructor(location, ...content) {
 		super(location);
 		this.content = content;

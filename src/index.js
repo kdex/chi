@@ -12,7 +12,7 @@ export function run(source) {
 	debug(tokens);
 	debug("Parsing tokens…");
 	const parser = new Parser(tokens);
-	const cst = parser.block();
+	const cst = parser.program();
 	if (parser.errors.length) {
 		err("Parsing failed.");
 		throw new Error(parser.errors);
