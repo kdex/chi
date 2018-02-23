@@ -1,5 +1,6 @@
 import Lexer from "./Lexer";
 import Parser, { transform } from "./Parser";
+import Visitor from "./Visitor";
 import interpret from "./Interpreter";
 import checkTypes from "./TypeSystem";
 import { debug, err } from "print-log";
@@ -22,7 +23,7 @@ export function run(source) {
 		depth: null,
 		showHidden: false
 	}));
-	const ast = transform(cst);
+	const ast = new Visitor().visit(cst);
 	debug("AST generation successful. AST is shown below.");
 	debug(inspect(ast, {
 		depth: null,
