@@ -4,22 +4,23 @@ import BabiliPlugin from "babili-webpack-plugin";
 const SOURCE = path.join(__dirname, "src");
 const DESTINATION = path.join(__dirname, "dist");
 const { NODE_ENV } = process.env;
-const isDebug = NODE_ENV === "development";
+const mode = NODE_ENV || "development";
+const dev = mode === "development";
 const commonOutput = {
 	path: DESTINATION,
 	filename: "[name].js"
 }
 const common = {
 	cache: true,
-	devtool: isDebug ? "inline-sourcemap" : false,
 	watch: false,
+	mode,
 	module: {
 		rules: [{
 			test: SOURCE,
 			use: "babel-loader"
 		}]
 	},
-	plugins: [].concat(isDebug ? [] : [
+	plugins: [].concat(dev ? [] : [
 		new webpack.optimize.OccurrenceOrderPlugin()
 		// new BabiliPlugin()
 	])
