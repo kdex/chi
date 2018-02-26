@@ -1,5 +1,17 @@
 import { Lexer, createToken } from "chevrotain";
 import { err } from "print-log";
+import {
+	IntType,
+	Int8Type,
+	Int16Type,
+	Int32Type,
+	UintType,
+	Uint8Type,
+	Uint16Type,
+	Uint32Type,
+	StringType,
+	BoolType
+} from "./Types";
 const { SKIPPED, NA } = Lexer;
 export const Identifier = createToken({
 	name: "Identifier",
@@ -251,3 +263,15 @@ export default class {
 		return result;
 	}
 }
+export const tokenTypeMap = new Map([
+	[TypeInt, IntType],
+	[TypeInt8, Int8Type],
+	[TypeInt16, Int16Type],
+	[TypeInt32, Int32Type],
+	[TypeUint, UintType],
+	[TypeUint8, Uint8Type],
+	[TypeUint16, Uint16Type],
+	[TypeUint32, Uint32Type],
+	[TypeString, StringType],
+	[TypeBool, BoolType]
+]);

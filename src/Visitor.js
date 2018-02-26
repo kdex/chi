@@ -3,18 +3,9 @@ import ChiParser from "./Parser";
 import {
 	Plus,
 	Minus,
-	Asterisk,
 	Slash,
-	TypeInt,
-	TypeInt8,
-	TypeInt16,
-	TypeInt32,
-	TypeUint,
-	TypeUint8,
-	TypeUint16,
-	TypeUint32,
-	TypeString,
-	TypeBool
+	Asterisk,
+	tokenTypeMap
 } from "./Lexer";
 import {
 	IntType,
@@ -65,18 +56,6 @@ function parseSuperScript(value) {
 	const superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 	return Number.parseInt(Array.from(value).map(c => String(superscripts.indexOf(c))).join(""));
 }
-const tokenTypeMap = new Map([
-	[TypeInt, IntType],
-	[TypeInt8, Int8Type],
-	[TypeInt16, Int16Type],
-	[TypeInt32, Int32Type],
-	[TypeUint, UintType],
-	[TypeUint8, Uint8Type],
-	[TypeUint16, Uint16Type],
-	[TypeUint32, Uint32Type],
-	[TypeString, StringType],
-	[TypeBool, BoolType]
-]);
 export default class Visitor extends parser.getBaseCstVisitorConstructor() {
 	constructor() {
 		super();
