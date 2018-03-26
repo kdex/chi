@@ -4,7 +4,7 @@
 [![dependencies](https://david-dm.org/kdex/chi/status.svg)](https://david-dm.org/kdex/chi)
 
 <p align="center">
-  <img alt="logo" src="https://cloud.githubusercontent.com/assets/4442505/23861535/a7285cf6-080a-11e7-885d-f51787e4c6bb.png">
+	<img alt="logo" src="https://cloud.githubusercontent.com/assets/4442505/23861535/a7285cf6-080a-11e7-885d-f51787e4c6bb.png">
 </p>
 In order to try it out, run:
 
@@ -18,7 +18,7 @@ This will tokenize the file `<chi-file>` and then parse, type-check and interpre
 ## About chi
 Chi, in its current form, is a meant to be a statically-typed, imperative programming language featuring ideas from the functional programming paradigm. As such, it considers functions to be first-class and performs automatic currying. It uses static scope and supports Unicode tokens. A (potentially incomplete) showcase of features is listed in the next section. Again, note that some features may break or change as chi isn't stable yet.
 ## Demo
-There is a very simple demo [here](https://github.kdex.de/chi/) where you can play around with chi.
+There is a very simple demo [here](https://github.kdex.de/chi/), where you can play around with chi.
 ## Getting started
 ### Variables
 Variables allow you to bind a value to a name. Note that there is no significant whitespace and semicolons are required to end a statement.
@@ -26,7 +26,7 @@ Variables allow you to bind a value to a name. Note that there is no significant
 let a = 3;
 ```
 ### Types
-Chi supports static typing. If no type is specified, a type will be inferred. Mathematical operations where the operands are of different numeric type will produce a result in the number type with the greater domain. The set of types currently consists of:
+Chi supports static typing. If no type is specified, a type will be inferred. Mathematical operations where the operands are of different numeric types will produce a result in the number type with the greater domain. The set of types currently consists of:
 - `i8`
 - `i16`
 - `i32`
@@ -40,7 +40,7 @@ There are two special types that are useful for casting. They are resolved to ac
 - `i`
 - `u`
 
-They will cast a value to its equivalent unsigned or signed value. For instance, `a:u` will cast `a` such that it is unsigned. If `a` is of type `i8`, the cast will end up as `u8`, et cetera.
+These latter types will cast a value to its equivalent unsigned or signed value. For instance, `a:u` will cast `a` such that it is unsigned. If `a` is of type `i8`, the cast will end up as `u8`, et cetera.
 ### Numbers, type casting
 There are currently the signed integer types `i8`, `i16`, and `i32` and their unsigned equivalents `u8`, `u16`, and `u32` for numerical values. If you don't specify the type of an integer literal, it will be assumed to be of type `i32`. In the example below, the first line will be `255:i8 + 2:i16`, which is equivalent to `-1:i8 + 2:i16`, which is equivalent to `-1:i16 + 2:i16`, which will be evaluated to `1:i16`.
 
