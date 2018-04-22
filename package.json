@@ -30,7 +30,7 @@
     "print-log": "^1.0.7",
     "raw-loader": "^0.5.1",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.14"
+    "webpack-cli": "^2.0.15"
   },
   "dependencies": {}
 }
