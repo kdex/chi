@@ -22,7 +22,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "^6.24.1",
     "babili-webpack-plugin": "0.1.2",
-    "chevrotain": "^3.2.0",
+    "chevrotain": "^3.3.0",
     "es6-error": "^4.1.1",
     "eslint": "^4.19.1",
     "eslint-plugin-filenames": "^1.2.0",
