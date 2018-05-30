@@ -29,7 +29,7 @@
     "greenkeeper-lockfile": "^1.14.0",
     "print-log": "^1.0.7",
     "raw-loader": "^0.5.1",
-    "webpack": "^4.6.0",
+    "webpack": "^4.10.1",
     "webpack-cli": "^2.0.15"
   },
   "dependencies": {}
