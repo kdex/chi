@@ -1,4 +1,7 @@
-node_modules
 *.log
 *-swp
+.pnp.*
+.yarn/*
+.yarnrc.yml
 dist
+node_modules

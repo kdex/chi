@@ -1,50 +1,51 @@
 import path from "path";
+import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
-import BabiliPlugin from "babili-webpack-plugin";
-const SOURCE = path.join(__dirname, "src");
-const DESTINATION = path.join(__dirname, "dist");
 const { NODE_ENV } = process.env;
 const mode = NODE_ENV || "development";
 const dev = mode === "development";
-const commonOutput = {
-	path: DESTINATION,
-	filename: "[name].js"
-}
 const common = {
 	cache: true,
-	watch: false,
 	mode,
 	module: {
 		rules: [{
-			test: SOURCE,
+			exclude: path.resolve("node_modules"),
+			test: /\.js$/,
 			use: "babel-loader"
 		}]
 	},
-	plugins: [].concat(dev ? [] : [
-		new webpack.optimize.OccurrenceOrderPlugin()
-		// new BabiliPlugin()
-	])
+	plugins: [].concat(dev
+		? []
+		: [
+			new webpack.optimize.OccurrenceOrderPlugin(),
+			new TerserPlugin()
+		]
+	),
+	watch: false
 };
 const chi = {
-	target: "web",
-	output: {
-		libraryTarget: "var",
-		library: "chi",
-		...commonOutput
-	},
 	entry: {
 		index: "./src/index"
-	}
+	},
+	output: {
+		libraryTarget: "var",
+		library: "chi"
+	},
+	resolve: {
+		fallback: {
+			util: false
+		}
+	},
+	target: "web"
 };
 const cli = {
-	target: "node",
-	output: {
-		libraryTarget: "umd",
-		...commonOutput
-	},
 	entry: {
 		cli: "./src/cli"
-	}
+	},
+	output: {
+		libraryTarget: "umd"
+	},
+	target: "node"
 };
 export default [
 	Object.assign({}, common, chi),

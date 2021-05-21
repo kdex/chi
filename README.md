@@ -1,6 +1,4 @@
 # chi
-
-[![travis](https://travis-ci.org/kdex/chi.svg?branch=master)](https://travis-ci.org/kdex/chi)
 [![dependencies](https://david-dm.org/kdex/chi/status.svg)](https://david-dm.org/kdex/chi)
 
 <p align="center">
