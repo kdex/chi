@@ -1,4 +1,4 @@
-import { Parser } from "chevrotain";
+import { CstParser as CSTParser } from "chevrotain";
 import {
 	allTokens,
 	Let,
@@ -28,10 +28,9 @@ import {
 	Colon,
 	Type
 } from "./Lexer.mjs";
-export default class ChiParser extends Parser {
-	constructor(input) {
-		super(input, allTokens, {
-			outputCst: true,
+export default class ChiParser extends CSTParser {
+	constructor() {
+		super(allTokens, {
 			recoveryEnabled: true
 		});
 		this.RULE("program", () => {
@@ -171,7 +170,8 @@ export default class ChiParser extends Parser {
 					ALT: () => this.SUBRULE(this.identifier)
 				}, {
 					ALT: () => this.SUBRULE(this.parenthesisExpression)
-				}]
+				}],
+				IGNORE_AMBIGUITIES: true
 			});
 		});
 		this.RULE("identifier", () => {
@@ -251,6 +251,6 @@ export default class ChiParser extends Parser {
 				}]
 			});
 		});
-		Parser.performSelfAnalysis(this);
+		this.performSelfAnalysis();
 	}
 };

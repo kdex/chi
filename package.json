@@ -10,7 +10,7 @@
 		"test": "npm run lint || true && for FILE in test/*; do node dist/cli.js $FILE; done",
 		"build": "webpack",
 		"dev": "webpack -w",
-		"lint": "eslint src",
+		"lint": "eslint src/**/*.mjs",
 		"postinstall": "npm run build"
 	},
 	"keywords": [],
@@ -22,7 +22,7 @@
 		"@babel/preset-env": "^7.14.2",
 		"@babel/register": "^7.13.16",
 		"babel-loader": "^8.2.2",
-		"chevrotain": "^3.6.1",
+		"chevrotain": "^9.0.1",
 		"es6-error": "^4.1.1",
 		"eslint": "^7.26.0",
 		"eslint-plugin-filenames": "^1.3.2",

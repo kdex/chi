@@ -12,7 +12,8 @@ export function run(source) {
 	debug("Tokenization successful. Token stream is shown below.");
 	debug(tokens);
 	debug("Parsing tokens…");
-	const parser = new Parser(tokens);
+	const parser = new Parser();
+	parser.input = tokens;
 	const cst = parser.program();
 	if (parser.errors.length) {
 		err("Parsing failed.");

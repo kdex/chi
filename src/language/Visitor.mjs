@@ -41,7 +41,7 @@ import {
 	Cast
 } from "./InterpreterClasses.mjs";
 import { warn } from "print-log";
-const parser = new ChiParser([]);
+const parser = new ChiParser();
 const locate = (start, end = start) => ({
 	start: {
 		line: start.startLine || start.location.start.line,
