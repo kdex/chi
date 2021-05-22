@@ -25,7 +25,7 @@ const common = {
 };
 const chi = {
 	entry: {
-		index: "./src/index"
+		index: "./src/language/index"
 	},
 	output: {
 		libraryTarget: "var",
@@ -40,7 +40,7 @@ const chi = {
 };
 const cli = {
 	entry: {
-		cli: "./src/cli"
+		cli: "./src/cli/index"
 	},
 	output: {
 		libraryTarget: "umd"

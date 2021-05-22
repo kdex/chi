@@ -1,5 +1,5 @@
 import Lexer from "./Lexer";
-import Parser, { transform } from "./Parser";
+import Parser from "./Parser";
 import Visitor from "./Visitor";
 import interpret from "./Interpreter";
 import checkTypes from "./TypeSystem";
@@ -66,7 +66,6 @@ export default run;
 export {
 	Lexer,
 	Parser,
-	transform,
 	interpret,
 	checkTypes
 };
