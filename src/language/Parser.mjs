@@ -27,7 +27,7 @@ import {
 	Comma,
 	Colon,
 	Type
-} from "./Lexer";
+} from "./Lexer.mjs";
 export default class ChiParser extends Parser {
 	constructor(input) {
 		super(input, allTokens, {

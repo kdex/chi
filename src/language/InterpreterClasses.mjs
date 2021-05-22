@@ -12,8 +12,8 @@ import {
 	BoolType,
 	FunctionType,
 	RecursiveType
-} from "./Types";
-import { RuntimeError } from "./Error";
+} from "./Types.mjs";
+import { RuntimeError } from "./Error.mjs";
 const add = (x, y) => x + y;
 const subtract = (x, y) => x - y;
 const multiply = (x, y) => x * y;

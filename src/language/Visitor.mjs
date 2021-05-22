@@ -1,4 +1,4 @@
-import ChiParser from "./Parser";
+import ChiParser from "./Parser.mjs";
 /* TODO: Some of these imports shouldn't be here */
 import {
 	Plus,
@@ -6,7 +6,7 @@ import {
 	Slash,
 	Asterisk,
 	tokenTypeMap
-} from "./Lexer";
+} from "./Lexer.mjs";
 import {
 	IntType,
 	Int8Type,
@@ -18,7 +18,7 @@ import {
 	Uint32Type,
 	StringType,
 	BoolType
-} from "./Types";
+} from "./Types.mjs";
 import {
 // 	NumberValue,
 	StringValue,
@@ -39,7 +39,7 @@ import {
 	FunctionExpression,
 	Apply,
 	Cast
-} from "./InterpreterClasses";
+} from "./InterpreterClasses.mjs";
 import { warn } from "print-log";
 const parser = new ChiParser([]);
 const locate = (start, end = start) => ({

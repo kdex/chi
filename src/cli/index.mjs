@@ -1,4 +1,4 @@
-import run from "../language/index";
+import run from "../language/index.mjs";
 import { err } from "print-log";
 import { readFileSync } from "fs";
 const [, , ...args] = process.argv;

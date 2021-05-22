@@ -29,7 +29,7 @@ import {
 	Or,
 	Not,
 	Cast
-} from "./InterpreterClasses";
+} from "./InterpreterClasses.mjs";
 import {
 	Int8Type,
 	Int16Type,
@@ -38,7 +38,7 @@ import {
 	Uint16Type,
 	Uint32Type,
 	FixedIntegerType
-} from "./Types";
+} from "./Types.mjs";
 export default function interpret(expression, environment = new Environment(), store = new Store()) {
 	const π = (expression, env = environment, s = store) => interpret(expression, env, s);
 	if (expression instanceof Value) {

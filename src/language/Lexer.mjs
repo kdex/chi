@@ -11,7 +11,7 @@ import {
 	Uint32Type,
 	StringType,
 	BoolType
-} from "./Types";
+} from "./Types.mjs";
 const { SKIPPED, NA } = Lexer;
 export const Identifier = createToken({
 	name: "Identifier",

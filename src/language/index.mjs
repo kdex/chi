@@ -1,8 +1,8 @@
-import Lexer from "./Lexer";
-import Parser from "./Parser";
-import Visitor from "./Visitor";
-import interpret from "./Interpreter";
-import checkTypes from "./TypeSystem";
+import Lexer from "./Lexer.mjs";
+import Parser from "./Parser.mjs";
+import Visitor from "./Visitor.mjs";
+import interpret from "./Interpreter.mjs";
+import checkTypes from "./TypeSystem.mjs";
 import { debug, err } from "print-log";
 import { inspect } from "util";
 export function run(source) {

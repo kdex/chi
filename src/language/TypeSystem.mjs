@@ -1,5 +1,5 @@
 import { err, warn } from "print-log";
-import { ReferenceError } from "./Error";
+import { ReferenceError } from "./Error.mjs";
 import {
 	BlockStatement,
 	Let,
@@ -33,7 +33,7 @@ import {
 	FunctionExpression,
 	Apply,
 	Cast
-} from "./InterpreterClasses";
+} from "./InterpreterClasses.mjs";
 import {
 	IntType,
 	Int8Type,
@@ -50,7 +50,7 @@ import {
 	VoidType,
 	RecursiveType,
 	AnyType
-} from "./Types";
+} from "./Types.mjs";
 const infer = (expression, type) => {
 	if (expression.typeHint) {
 		if (expression.typeHint !== type) {
